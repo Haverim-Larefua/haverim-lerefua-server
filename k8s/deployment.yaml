@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: hl-be
-        image: dockercentral.azurecr.io/hl-be:$buildNumber
+        image: dockercentral.azurecr.io/hl-be:latest
         ports:
         - containerPort: 3000
