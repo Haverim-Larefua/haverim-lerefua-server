@@ -19,3 +19,5 @@ spec:
         image: dockercentral.azurecr.io/hl-be:latest
         ports:
         - containerPort: 3000
+      imagePullSecrets:
+      - name: pullsecret
