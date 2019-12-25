@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: hl-be
-        image: com.azure.dev.image.system.teamproject=hl-be:11
+        image: dockercentral.azurecr.io/hl-be:latest
         ports:
         - containerPort: 3000
