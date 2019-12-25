@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: HL-BE-Deployment
+  name: hl-be-deployment
   labels:
-    app: HL-BE
+    app: hl-be
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: HL-BE
+      app: hl-be
   template:
     metadata:
       labels:
-        app: HL-BE
+        app: hl-be
     spec:
       containers:
-      - name: HL-BE
-        image: com.azure.dev.image.system.teamproject=HL-BE-PL:11
+      - name: hl-be
+        image: com.azure.dev.image.system.teamproject=hl-be:11
         ports:
         - containerPort: 3000
