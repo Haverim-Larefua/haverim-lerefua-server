@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hl-be
-        image: dockercentral.azurecr.io/hl-be:${{ Build.BuildId }}
+        image: dockercentral.azurecr.io/hl-be
         ports:
         - containerPort: 3000
       imagePullSecrets:
