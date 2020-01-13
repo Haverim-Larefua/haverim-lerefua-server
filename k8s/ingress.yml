@@ -11,7 +11,11 @@ spec:
   rules:
   - http:
       paths:
+      - frontend:
+          serviceName: hl-fe-service
+          servicePort: 3000
+        path: /
       - backend:
           serviceName: hl-be-service
-          servicePort: 3000
-        path: /(.*)
+          servicePort: 3001
+        path: /be
