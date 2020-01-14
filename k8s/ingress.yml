@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: hl-be-ingress
+  name: hl-ingress
   namespace: default
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -11,11 +11,11 @@ spec:
   rules:
   - http:
       paths:
-      - frontend:
-          serviceName: hl-fe-service
-          servicePort: 3000
-        path: /
       - backend:
           serviceName: hl-be-service
           servicePort: 3001
         path: /be
+      - backend:
+          serviceName: hl-fe-service
+          servicePort: 3000
+        path: /  
