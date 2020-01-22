@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import 'reflect-metadata';
 @Entity('parcel')
-export class ParcelDto {
+export class Parcel {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()

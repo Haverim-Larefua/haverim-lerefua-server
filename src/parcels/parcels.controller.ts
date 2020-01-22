@@ -1,30 +1,39 @@
-import { Controller, Get, Post, Put, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Param,
+  Body,
+  Logger,
+} from '@nestjs/common';
 import { ParcelsService } from './parcels.service';
-import { ParcelDto } from './dto/parcel.dto';
+import { Parcel } from '../entity/parcel.entity';
 
 @Controller('parcels')
 export class ParcelsController {
-    constructor (private readonly parcelsService: ParcelsService) {}
-    
-    @Get()
-    getAllUsers() {
-        return this.parcelsService.getAllParcels();
-    }
+  constructor(private readonly parcelsService: ParcelsService) {}
 
-    @Get(':id')
-    getUserbyId(@Param('id') id: number) {
-        return this.parcelsService.getParcelbyId(id);
-    }
+  @Get()
+  getAllUsers() {
+    Logger.log(`call to getAllParcels()`);
+    return this.parcelsService.getAllParcels();
+  }
 
-    @Post()
-    CreateUser(@Body() parcel: ParcelDto) {
-        console.log(parcel);
-        return this.parcelsService.createParcel(parcel);
-    }
+  @Get(':id')
+  getUserbyId(@Param('id') id: number) {
+    return this.parcelsService.getParcelbyId(id);
+  }
 
-    @Put(':id')
-    updateUser(@Param('id') id: number, @Body() parcel: ParcelDto){
-        console.log(parcel);
-        return this.parcelsService.updateParcel(id, parcel);
-    }
+  @Post()
+  CreateUser(@Body() parcel: Parcel) {
+    Logger.log(`call to CreateParcel()`);
+    return this.parcelsService.createParcel(parcel);
+  }
+
+  @Put(':id')
+  updateUser(@Param('id') id: number, @Body() parcel: Parcel) {
+    Logger.log(`call to updateParcel()`);
+    return this.parcelsService.updateParcel(id, parcel);
+  }
 }
