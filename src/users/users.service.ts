@@ -18,4 +18,8 @@ export class UsersService {
     updateUser(id: number, user: UserDto){
         return "update user with id: " + id + " with the data: " + user;
     }
+
+    deleteUser(id: number){
+        return "delete user with id: " + id;
+    }
 }

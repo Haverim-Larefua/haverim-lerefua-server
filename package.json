@@ -10,7 +10,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
+    "start:debug": "nodemon --config nodemon-debug.json",
     "start:prod": "node dist/main",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
@@ -21,11 +21,16 @@
   },
   "dependencies": {
     "@nestjs/common": "^6.8.0",
+    "@nestjs/config": "^0.1.0",
     "@nestjs/core": "^6.8.0",
     "@nestjs/platform-express": "^6.8.0",
+    "body-parser": "^1.19.0",
+    "express-static": "^1.2.6",
+    "nodemon": "^2.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
-    "rxjs": "^6.5.3"
+    "rxjs": "^6.5.3",
+    "web-push": "^3.4.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^6.9.1",
