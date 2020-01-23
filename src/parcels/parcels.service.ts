@@ -1,21 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import { ParcelDto } from './dto/parcel.dto';
+import { Injectable, Inject } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { Parcel } from '../entity/parcel.entity';
 
 @Injectable()
 export class ParcelsService {
-    getAllParcels(){
-        return "get all parcels";
-    }
+  constructor(
+    @Inject('PARCEL_REPOSITORY')
+    private readonly parcelRepository: Repository<Parcel>,
+  ) {}
 
-    getParcelbyId(id: number){
-        return "get parcel by id: " + id;
-    }
+  getAllParcels() {
+    return this.parcelRepository.find();
+  }
 
-    createParcel(parcel: ParcelDto){
-        return "create parcel: " + parcel;
-    }
+  getParcelbyId(id: number) {
+    return this.parcelRepository.findOne(id);
+  }
 
-    updateParcel(id: number, parcel: ParcelDto){
-        return "update parcel with id: " + id + " with the data: " + parcel;
-    }
+  createParcel(parcel: Parcel) {
+    return this.parcelRepository.save(parcel);
+  }
+
+  updateParcel(id: number, parcel: Parcel) {
+    return this.parcelRepository.update(id, parcel);
+  }
 }
