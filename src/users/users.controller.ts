@@ -1,30 +1,28 @@
 import { Controller, Get, Param, Post, Body, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UserDto } from './dto/user.dto';
+import { User } from './entity/user.entity';
 
 @Controller('users')
 export class UsersController {
-    constructor (private readonly usersService: UsersService) {}
-    
-    @Get()
-    getAllUsers() {
-        return this.usersService.getAllUsers();
-    }
+  constructor(private readonly usersService: UsersService) {}
 
-    @Get(':id')
-    getUserbyId(@Param('id') id: number) {
-        return this.usersService.getUserbyId(id);
-    }
+  @Get()
+  getAllUsers() {
+    return this.usersService.getAllUsers();
+  }
 
-    @Post()
-    CreateUser(@Body() user: UserDto) {
-        console.log(user);
-        return this.usersService.createUser(user);
-    }
+  @Get(':id')
+  getUserbyId(@Param('id') id: number) {
+    return this.usersService.getUserbyId(id);
+  }
 
-    @Put(':id')
-    updateUser(@Param('id') id: number, @Body() user: UserDto) {
-        console.log(user);
-        return this.usersService.updateUser(id, user);
-    }
+  @Post()
+  CreateUser(@Body() user: User) {
+    return this.usersService.createUser(user);
+  }
+
+  @Put(':id')
+  updateUser(@Param('id') id: number, @Body() user: User) {
+    return this.usersService.updateUser(id, user);
+  }
 }
