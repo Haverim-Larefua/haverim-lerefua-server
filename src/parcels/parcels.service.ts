@@ -24,4 +24,8 @@ export class ParcelsService {
   updateParcel(id: number, parcel: Parcel) {
     return this.parcelRepository.update(id, parcel);
   }
+
+  deleteParcel(id: number) {
+    return this.parcelRepository.delete(id);
+  }
 }

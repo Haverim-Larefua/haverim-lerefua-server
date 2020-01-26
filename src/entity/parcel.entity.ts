@@ -20,4 +20,6 @@ export class Parcel {
   deliveryPersonPhone: string;
   @Column()
   comments: string;
+  @Column({ name: 'update_date' })
+  updateDate: Date;
 }

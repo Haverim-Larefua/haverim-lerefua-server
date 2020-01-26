@@ -11,6 +11,7 @@ CREATE TABLE parcel (
   delivery_person varchar(100) DEFAULT NULL,
   delivery_person_phone varchar(100) DEFAULT NULL,
   comments varchar(100) DEFAULT NULL,
+  update_date timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
@@ -46,10 +47,10 @@ CREATE TABLE user (
   delivery_area varchar(10) DEFAULT NULL,
   delivery_days varchar(10) DEFAULT NULL,
   phone varchar(20) DEFAULT NULL,
-  fole_fk int(11) DEFAULT NULL,
+  role_fk int(11) DEFAULT NULL,
   PRIMARY KEY (id),
-  KEY user_role_fk_idx (fole_fk),
-  CONSTRAINT user_role_fk FOREIGN KEY (fole_fk) REFERENCES roles (id)
+  KEY user_role_fk_idx (role_fk),
+  CONSTRAINT user_role_fk FOREIGN KEY (role_fk) REFERENCES roles (id)
 ) ENGINE=InnoDB;
 
 
