@@ -3,8 +3,8 @@
   "host": "localhost",
   "port": 3306,
   "username": "root",
-  "password": "root",
-  "database": "art_db",
+  "password": "Snoopy2292",
+  "database": "refua_delivery",
   "entities": ["dist/entity/*.js"],
   "synchronize": false,
   "cli": {

@@ -6,10 +6,10 @@ export const databaseProviders = [
     useFactory: async () =>
       await createConnection({
         type: 'mysql',
-        host: 'localhost',
+        host: '127.0.0.1',
         port: 3306,
         username: 'root',
-        password: 'root',
+        password: 'Snoopy2292',
         database: 'refua_delivery',
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
         synchronize: false,
