@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import 'reflect-metadata';
+import { User } from './user.entity';
 @Entity('parcel')
 export class Parcel {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+  @Column({ unique: true })
   no: string;
   @Column()
   destination: string;
@@ -14,11 +15,14 @@ export class Parcel {
   destinationPhone: string;
   @Column()
   address: string;
-  @Column({ name: 'delivery_person' })
-  deliveryPerson: string;
-  @Column({ name: 'delivery_person_phone' })
-  deliveryPersonPhone: string;
-  @Column()
+  //@ManyToOne(type => User, user => user.id)
+  //user: User;
+ @Column()
+ userId: number;
+ @ManyToOne(type => User)
+ @JoinColumn({name: 'userId', referencedColumnName: 'id'})
+ user: User;
+ @Column()
   comments: string;
   @Column({ name: 'update_date' })
   updateDate: Date;

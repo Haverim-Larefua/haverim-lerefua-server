@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 
@@ -17,8 +17,13 @@ export class ParcelsService {
     return this.parcelRepository.findOne(id);
   }
 
-  createParcel(parcel: Parcel) {
-    return this.parcelRepository.save(parcel);
+  async createParcel(parcel: Parcel) {
+    const p = await this.parcelRepository.find({ no: parcel.no });
+    if (p.length === 0) {
+      return this.parcelRepository.save(parcel);
+    } else {
+      return 'Allready exits';
+    }
   }
 
   updateParcel(id: number, parcel: Parcel) {
@@ -28,4 +33,9 @@ export class ParcelsService {
   deleteParcel(id: number) {
     return this.parcelRepository.delete(id);
   }
+
+  findByNo(key: string) {
+    return this.parcelRepository.find({ no: key });
+  }
+  
 }

@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import 'reflect-metadata';
+import { Parcel } from './parcel.entity';
+
 @Entity('user')
 export class User {
   @PrimaryGeneratedColumn()
@@ -12,10 +14,10 @@ export class User {
   address: string;
   @Column({ name: 'delivery_area' })
   deliveryArea: string;
-  @Column({ name: 'delivery_days' })
-  deliveryDays: string;
   @Column()
   phone: string;
   @Column({ name: 'role_fk' })
   roleFK: number;
+  @OneToMany(type => Parcel, parcel => parcel.user)
+  parcels: Parcel[];
 }

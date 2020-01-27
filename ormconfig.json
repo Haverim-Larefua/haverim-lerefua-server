@@ -4,8 +4,8 @@
   "port": 3306,
   "username": "root",
   "password": "root",
-  "database": "art_db",
-  "entities": ["dist/entity/*.js"],
+  "database": "refua_delivery",
+  "entities": ["dist/**/*.entity.js"],
   "synchronize": false,
   "cli": {
     "entitiesDir": "src/**"
