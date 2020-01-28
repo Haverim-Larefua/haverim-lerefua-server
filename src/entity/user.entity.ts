@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import 'reflect-metadata';
 import { Parcel } from './parcel.entity';
 
-@Entity('user')
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
