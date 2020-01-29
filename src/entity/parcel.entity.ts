@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import 'reflect-metadata';
 import { User } from './user.entity';
 @Entity('parcel')
@@ -15,14 +21,12 @@ export class Parcel {
   destinationPhone: string;
   @Column()
   address: string;
-  //@ManyToOne(type => User, user => user.id)
-  //user: User;
- @Column()
- userId: number;
- @ManyToOne(type => User)
- @JoinColumn({name: 'userId', referencedColumnName: 'id'})
- user: User;
- @Column()
+  @Column()
+  userId: number;
+  @ManyToOne(type => User)
+  @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
+  user: User;
+  @Column()
   comments: string;
   @Column({ name: 'update_date' })
   updateDate: Date;

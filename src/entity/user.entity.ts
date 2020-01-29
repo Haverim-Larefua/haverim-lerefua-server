@@ -1,6 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import 'reflect-metadata';
 import { Parcel } from './parcel.entity';
+import { DeliveryDays } from './deliveyDays.entity';
 
 @Entity('users')
 export class User {
@@ -20,4 +28,7 @@ export class User {
   roleFK: number;
   @OneToMany(type => Parcel, parcel => parcel.user)
   parcels: Parcel[];
+  @ManyToOne(type => DeliveryDays)
+  @JoinColumn({ name: 'deliveryDaysId', referencedColumnName: 'id' })
+  deliveryDays: DeliveryDays;
 }
