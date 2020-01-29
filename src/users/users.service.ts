@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { User } from '../entity/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -39,5 +39,15 @@ export class UsersService {
   getParcelsForAUser(id: number) {
     Logger.log('call to getParcelsForAllUsers ');
     return this.userRepository.findOne(id, { relations: ['parcels'] });
+  }
+
+  getUserByName(name: string) {
+    Logger.log(`call to getUserByName: '${name}'`);
+    return this.userRepository.find({
+      where: [
+        { firstName: Like(`%${name}%`) },
+        { lastName: Like(`%${name}%`) },
+      ],
+    });
   }
 }

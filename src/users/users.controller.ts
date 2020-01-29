@@ -37,7 +37,6 @@ export class UsersController {
     return this.usersService.getParcelsForAUser(id);
   }
 
-
   @Post()
   CreateUser(@Body() user: User) {
     return this.usersService.createUser(user);
@@ -46,5 +45,9 @@ export class UsersController {
   @Put(':id')
   updateUser(@Param('id') id: number, @Body() user: User) {
     return this.usersService.updateUser(id, user);
+  }
+  @Get('username/:name')
+  getUserByName(@Param('name') name: string) {
+    return this.usersService.getUserByName(name);
   }
 }
