@@ -31,20 +31,18 @@ export class ParcelsController {
     Logger.log(`call to getParcelbyNo()`);
     return this.parcelsService.findByNo(key);
   }
-  
 
   @Post()
   CreateParcel(@Body() parcel: Parcel) {
-    Logger.log(`1call to CreateParcel()`);
-    const newParcel = this.parcelsService.findByNo(parcel.no);
-
-    // if (typeof newParcel === 'undefined') {
-    //   Logger.log('insert');
-    // } else {
-    //   Logger.log('update');
-    // }
-
+    Logger.log(`call to CreateParcel()`);
     return this.parcelsService.createParcel(parcel);
+  }
+
+  @Post()
+  CreateParcels(@Body() parcels: Parcel[]) {
+    /*Logger.log(`call to CreateParcels()`);
+    const newParcel = this.parcelsService.findByNo(parcel.no); */
+    return '';
   }
 
   @Put(':id')

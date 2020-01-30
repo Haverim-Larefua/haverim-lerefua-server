@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import 'reflect-metadata';
 import { Parcel } from './parcel.entity';
-import { DeliveryDays } from './deliveyDays.entity';
 
 @Entity('users')
 export class User {
@@ -22,13 +21,14 @@ export class User {
   address: string;
   @Column({ name: 'delivery_area' })
   deliveryArea: string;
+  @Column({ name: 'delivery_days' })
+  deliveryDays: string;
   @Column()
   phone: string;
   @Column({ name: 'role_fk' })
   roleFK: number;
+  @Column()
+  notes: string;
   @OneToMany(type => Parcel, parcel => parcel.user)
   parcels: Parcel[];
-  @ManyToOne(type => DeliveryDays)
-  @JoinColumn({ name: 'deliveryDaysId', referencedColumnName: 'id' })
-  deliveryDays: DeliveryDays;
 }

@@ -25,6 +25,14 @@ export class ParcelsService {
       return 'Allready exits';
     }
   }
+  async createParcels(parcels: Parcel[]) {
+    //  const p = await this.parcelRepository.find({ no: parcel.no });
+    // if (p.length === 0) {
+    //   return this.parcelRepository.save(parcel);
+    // } else {
+    return 'Allready exits';
+    //}
+  }
 
   updateParcel(id: number, parcel: Parcel) {
     return this.parcelRepository.update(id, parcel);
@@ -37,5 +45,4 @@ export class ParcelsService {
   findByNo(key: string) {
     return this.parcelRepository.find({ no: key });
   }
-  
 }

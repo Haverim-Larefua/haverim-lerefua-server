@@ -4,15 +4,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ParcelsModule } from './parcels/parcels.module';
-import { DeliveryDaysModule } from './deliverydays/delivery-dats.module';
 
 @Module({
-  imports: [
-    UsersModule,
-    TypeOrmModule.forRoot(),
-    ParcelsModule,
-    DeliveryDaysModule,
-  ],
+  imports: [UsersModule, TypeOrmModule.forRoot(), ParcelsModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -9,13 +9,11 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
   getAllUsers() {
-    return this.userRepository.find({
-      relations: ['deliveryDays'],
-    });
+    return this.userRepository.find();
   }
 
   getUserbyId(id: number) {
-    return this.userRepository.findOne(id, { relations: ['deliveryDays'] });
+    return this.userRepository.findOne(id);
   }
 
   createUser(user: User) {

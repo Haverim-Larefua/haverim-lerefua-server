@@ -14,11 +14,11 @@ export class Parcel {
   @Column({ unique: true })
   no: string;
   @Column()
-  destination: string;
-  @Column({ name: 'destination_address' })
-  destinationAddress: string;
-  @Column({ name: 'destination_phone' })
-  destinationPhone: string;
+  city: string;
+  @Column()
+  phone: string;
+  @Column({ name: 'customer_name' })
+  customerName: string;
   @Column()
   address: string;
   @Column()
