@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Param,
-  Body,
-  Logger,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, Logger, Delete} from '@nestjs/common';
 import { ParcelsService } from './parcels.service';
 import { Parcel } from '../entity/parcel.entity';
 
