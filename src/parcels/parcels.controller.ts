@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body, Logger, Delete} from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, Logger, Delete } from '@nestjs/common';
 import { ParcelsService } from './parcels.service';
 import { Parcel } from '../entity/parcel.entity';
 
@@ -20,7 +20,7 @@ export class ParcelsController {
   @Get('find/:key')
   getParcelbyNo(@Param('key') key: string) {
     Logger.log(`call to getParcelbyNo()`);
-    return this.parcelsService.findByNo(key);
+    return this.parcelsService.getParcelbyNo(key);
   }
 
   @Post()
@@ -29,12 +29,12 @@ export class ParcelsController {
     return this.parcelsService.createParcel(parcel);
   }
 
-  @Post()
-  CreateParcels(@Body() parcels: Parcel[]) {
-    /*Logger.log(`call to CreateParcels()`);
-    const newParcel = this.parcelsService.findByNo(parcel.no); */
-    return '';
-  }
+  // @Post()
+  // CreateParcels(@Body() parcels: Parcel[]) {
+  //   /*Logger.log(`call to CreateParcels()`);
+  //   const newParcel = this.parcelsService.findByNo(parcel.no); */
+  //   return '';
+  // }
 
   @Put(':id')
   updateParcel(@Param('id') id: number, @Body() parcel: Parcel) {

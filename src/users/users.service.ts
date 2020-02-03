@@ -8,12 +8,44 @@ export class UsersService {
     @Inject('USER_REPOSITORY')
     private readonly userRepository: Repository<User>,
   ) {}
+
   getAllUsers() {
-    return this.userRepository.find();
+    return this.userRepository.find({});
   }
 
   getUserbyId(id: number) {
-    return this.userRepository.findOne(id);
+    return this.userRepository.findOne({
+      where: {
+        id,
+      },
+      join: {
+        alias: 'person',
+        leftJoinAndSelect: {
+          parcels: 'person.parcels',
+          parcel_tracking: 'parcels.parcelTracking',
+        },
+      },
+    });
+    // return this.userRepository.findOne(id, {
+    //   relations: ['role', 'parcels'],
+    // });
+  }
+
+  getUserByName(name: string) {
+    Logger.log(`call to getUserByName: '${name}'`);
+    return this.userRepository.find({
+      where: [
+        { firstName: Like(`%${name}%`) },
+        { lastName: Like(`%${name}%`) },
+      ],
+      join: {
+        alias: 'person',
+        leftJoinAndSelect: {
+          parcels: 'person.parcels',
+          parcel_tracking: 'parcels.parcelTracking',
+        },
+      },
+    });
   }
 
   createUser(user: User) {
@@ -28,24 +60,15 @@ export class UsersService {
     return this.userRepository.delete(id);
   }
 
-  getParcelsForAllUsers() {
-    Logger.log('call to getParcelsForAllUsers');
-    const parcels = this.userRepository.find({ relations: ['parcels'] });
-    return parcels;
-  }
+  // getParcelsForAllUsers() {
+  //   Logger.log('call to getParcelsForAllUsers');
+  //   const parcels = this.userRepository.find({ relations: ['parcels'] });
+  //   return parcels;
+  // }
+  //
+  // getParcelsForAUser(id: number) {
+  //   Logger.log('call to getParcelsForAllUsers ');
+  //   return this.userRepository.findOne(id, { relations: ['parcels'] });
+  // }
 
-  getParcelsForAUser(id: number) {
-    Logger.log('call to getParcelsForAllUsers ');
-    return this.userRepository.findOne(id, { relations: ['parcels'] });
-  }
-
-  getUserByName(name: string) {
-    Logger.log(`call to getUserByName: '${name}'`);
-    return this.userRepository.find({
-      where: [
-        { firstName: Like(`%${name}%`) },
-        { lastName: Like(`%${name}%`) },
-      ],
-    });
-  }
 }

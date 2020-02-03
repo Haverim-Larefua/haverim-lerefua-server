@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 
@@ -11,12 +11,30 @@ export class ParcelsService {
 
   getAllParcels() {
     return this.parcelRepository.find({
-      relations: ["parcelTracking", "user"]
+      relations: ['parcelTracking', 'user'],
     });
   }
 
   getParcelbyId(id: number) {
-    return this.parcelRepository.findOne(id);
+    return this.parcelRepository.findOne(id, {
+      relations: ['parcelTracking', 'user'],
+    });
+  }
+
+  getParcelbyNo(key: string) {
+    // return this.parcelRepository.find({ no: key });
+    return this.parcelRepository.find( {
+      where: {
+        no: key,
+      },
+      join: {
+        alias: 'parcel',
+          leftJoinAndSelect: {
+              user: 'parcel.user',
+              parcel_tracking: 'parcel.parcelTracking',
+        },
+      },
+    });
   }
 
   async createParcel(parcel: Parcel) {
@@ -24,7 +42,7 @@ export class ParcelsService {
     if (p.length === 0) {
       return this.parcelRepository.save(parcel);
     } else {
-      return 'Allready exits';
+      return 'Already exits';
     }
   }
   async createParcels(parcels: Parcel[]) {
@@ -32,8 +50,8 @@ export class ParcelsService {
     // if (p.length === 0) {
     //   return this.parcelRepository.save(parcel);
     // } else {
-    return 'Allready exits';
-    //}
+    return 'Already exits';
+    // }
   }
 
   updateParcel(id: number, parcel: Parcel) {
@@ -44,7 +62,4 @@ export class ParcelsService {
     return this.parcelRepository.delete(id);
   }
 
-  findByNo(key: string) {
-    return this.parcelRepository.find({ no: key });
-  }
 }

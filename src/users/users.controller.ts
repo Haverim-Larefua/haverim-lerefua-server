@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Body,
-  Put,
-  Logger,
-} from '@nestjs/common';
+import { Controller, Get, Delete, Param, Post, Body, Put, Logger } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../entity/user.entity';
 
@@ -25,17 +17,17 @@ export class UsersController {
     return this.usersService.getUserbyId(id);
   }
 
-  @Get('parcels/all')
-  getAllParcels() {
-    Logger.log('call to getParcelsForAllUsers');
-    return this.usersService.getParcelsForAllUsers();
-  }
-
-  @Get('parcels/:id')
-  getParcelsByUser(@Param('id') id: number) {
-    Logger.log('call to getParcelsById');
-    return this.usersService.getParcelsForAUser(id);
-  }
+  // @Get('parcels/all')
+  // getAllParcels() {
+  //   Logger.log('call to getParcelsForAllUsers');
+  //   return this.usersService.getParcelsForAllUsers();
+  // }
+  //
+  // @Get('parcels/:id')
+  // getParcelsByUser(@Param('id') id: number) {
+  //   Logger.log('call to getParcelsById');
+  //   return this.usersService.getParcelsForAUser(id);
+  // }
 
   @Post()
   CreateUser(@Body() user: User) {
@@ -46,6 +38,12 @@ export class UsersController {
   updateUser(@Param('id') id: number, @Body() user: User) {
     return this.usersService.updateUser(id, user);
   }
+
+  @Delete(':id')
+  deleteUser(@Param('id') id: number) {
+    return this.usersService.deleteUser(id);
+  }
+
   @Get('username/:name')
   getUserByName(@Param('name') name: string) {
     return this.usersService.getUserByName(name);
