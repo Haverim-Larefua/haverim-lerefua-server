@@ -10,7 +10,9 @@ export class ParcelsService {
   ) {}
 
   getAllParcels() {
-    return this.parcelRepository.find();
+    return this.parcelRepository.find({
+      relations: ["parcelTracking", "user"]
+    });
   }
 
   getParcelbyId(id: number) {
