@@ -9,7 +9,7 @@ export const databaseProviders = [
         host: 'localhost',
         port: 3306,
         username: 'root',
-        password: 'Snoopy2292',
+        password: 'root',
         database: 'refua_delivery',
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
         synchronize: false,
