@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body, Logger, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Put, Param, Body, Logger, Delete, Query} from '@nestjs/common';
 import { ParcelsService } from './parcels.service';
 import { Parcel } from '../entity/parcel.entity';
 
@@ -7,21 +7,34 @@ export class ParcelsController {
   constructor(private readonly parcelsService: ParcelsService) {}
 
   @Get()
-  getAllParcels() {
+  getAllParcels(): Promise<Parcel[]> {
     Logger.log(`[ParcelsController] getAllParcels()`);
     return this.parcelsService.getAllParcels();
   }
 
   @Get(':id')
-  getParcelbyId(@Param('id') id: number) {
-    Logger.log(`[ParcelsController] getParcelbyId()`);
-    return this.parcelsService.getParcelbyId(id);
+  getParcelById(@Param('id') id: number): Promise<Parcel> {
+    Logger.log(`[ParcelsController] getParcelById()`);
+    return this.parcelsService.getParcelById(id);
   }
 
   @Get('find/:key')
-  getParcelbyNo(@Param('key') key: string) {
-    Logger.log(`[ParcelsController] getParcelbyNo()`);
-    return this.parcelsService.getParcelbyNo(key);
+  getParcelByNo(@Param('key') key: string): Promise<Parcel[]> {
+    Logger.log(`[ParcelsController] getParcelByNo()`);
+    return this.parcelsService.getParcelByNo(key);
+  }
+  /**
+   * Note: the request should look like this:
+   * status/:userId?statuses=1,2
+   */
+  @Get('status/:userId')
+  getParcelsByUserIdForStatuses(
+      @Param('userId') userId: number,
+      @Query() query,
+  ): Promise<Parcel[]> {
+    const statuses: number[] = query.statuses.split(',');
+    Logger.log(`[ParcelsController] getParcelsByUserIdForStatuses(${userId}, [${statuses}])`);
+    return this.parcelsService.getParcelsByUserIdForStatuses(userId, statuses);
   }
 
   @Post()

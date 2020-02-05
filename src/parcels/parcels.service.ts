@@ -1,4 +1,4 @@
-import {Injectable, Inject, Logger} from '@nestjs/common';
+import {Injectable, Inject, Logger, HttpException, HttpStatus} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 
@@ -9,23 +9,55 @@ export class ParcelsService {
     private readonly parcelRepository: Repository<Parcel>,
   ) {}
 
-  getAllParcels() {
+  /**
+   * Get all parcels
+   */
+  getAllParcels(): Promise<Parcel[]> {
     return this.parcelRepository.find({
       relations: ['parcelTracking', 'user'],
     });
   }
 
-  getParcelbyId(id: number) {
+  /**
+   * Get parcel by parcel id
+   * @param id
+   */
+  getParcelById(id: number): Promise<Parcel> {
     return this.parcelRepository.findOne(id, {
       relations: ['parcelTracking', 'user'],
     });
   }
 
-  getParcelbyNo(key: string) {
-    // return this.parcelRepository.find({ no: key });
+  /**
+   * //TODO: Does not work, need to continue
+   * Get all parcels belongs to userId, by specific statuses
+   * @param userId
+   */
+  getParcelsByUserIdForStatuses(userId: number, statuses: number[]): Promise<Parcel[]> {
+    return this.parcelRepository.find( {
+      where: [
+          { userId },
+          { 'parcel.parcel_tracking.statusId': statuses[0] },
+      ],
+      join: {
+        alias: 'parcel',
+        leftJoinAndSelect: {
+          user: 'parcel.user',
+          parcel_tracking: 'parcel.parcelTracking',
+        },
+      },
+    });
+  }
+
+  /**
+   * Get parcels by no (identity of user)
+   * @param key
+   * Note: This will return array of parcels
+   */
+  getParcelByNo(no: string): Promise<Parcel[]> {
     return this.parcelRepository.find( {
       where: {
-        no: key,
+        no,
       },
       join: {
         alias: 'parcel',
@@ -38,15 +70,15 @@ export class ParcelsService {
   }
 
   /**
-   * Create new parcel
+   * Create new parcel, and return it
    * @param parcel
    */
-  async createParcel(parcel: Parcel) {
+  async createParcel(parcel: Parcel): Promise<Parcel> {
     const p = await this.parcelRepository.find({ no: parcel.no });
     if (p.length === 0) {
       return this.parcelRepository.save(parcel);
     } else {
-      return 'Already exits';
+      throw new HttpException('Parcel already exists', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -71,7 +103,7 @@ export class ParcelsService {
     Logger.log(`[ParcelsController] parcel: ${JSON.stringify(parcel)}`);
     parcel.userId = userId;
     await this.parcelRepository.save(parcel);
-    return this.getParcelbyId(parcelId);
+    return this.getParcelById(parcelId);
   }
 
   /**
