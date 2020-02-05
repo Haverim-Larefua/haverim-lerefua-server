@@ -34,7 +34,6 @@ export class Parcel {
   address: string;
 
   @Column()
-  @IsNotEmpty()
   userId: number;
 
   @Column()

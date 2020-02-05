@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import {Injectable, Inject, Logger} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 
@@ -37,6 +37,10 @@ export class ParcelsService {
     });
   }
 
+  /**
+   * Create new parcel
+   * @param parcel
+   */
   async createParcel(parcel: Parcel) {
     const p = await this.parcelRepository.find({ no: parcel.no });
     if (p.length === 0) {
@@ -45,19 +49,44 @@ export class ParcelsService {
       return 'Already exits';
     }
   }
-  async createParcels(parcels: Parcel[]) {
-    //  const p = await this.parcelRepository.find({ no: parcel.no });
-    // if (p.length === 0) {
-    //   return this.parcelRepository.save(parcel);
-    // } else {
-    return 'Already exits';
-    // }
+
+  // async createParcels(parcels: Parcel[]) {
+  //   //  const p = await this.parcelRepository.find({ no: parcel.no });
+  //   // if (p.length === 0) {
+  //   //   return this.parcelRepository.save(parcel);
+  //   // } else {
+  //   return 'Already exits';
+  //   // }
+  // }
+
+  /**
+   * Assign parcel to user, and return the new parcel object with the user
+   * @param userId
+   * @param parcelId
+   * Note: Can not return this.parcelRepository.save(parcel), because it does not return the parcel with the relationship of user
+   */
+  async assignParcelToUser(userId: number, parcelId: number): Promise<Parcel> {
+    Logger.log(`[ParcelsController] parcelId: ${parcelId}`);
+    const parcel: Parcel = await this.parcelRepository.findOne({ id: parcelId });
+    Logger.log(`[ParcelsController] parcel: ${JSON.stringify(parcel)}`);
+    parcel.userId = userId;
+    await this.parcelRepository.save(parcel);
+    return this.getParcelbyId(parcelId);
   }
 
+  /**
+   * Update parcel by id
+   * @param id
+   * @param parcel
+   */
   updateParcel(id: number, parcel: Parcel) {
     return this.parcelRepository.update(id, parcel);
   }
 
+  /**
+   * Delete parcel by id
+   * @param id
+   */
   deleteParcel(id: number) {
     return this.parcelRepository.delete(id);
   }
