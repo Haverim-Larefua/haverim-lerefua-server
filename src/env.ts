@@ -8,7 +8,7 @@ export const environment = {
         PORT: Number(process.env.DB_PORT) || 3306,
         NAME: process.env.DB_NAME || 'refua_delivery',
         USERNAME: process.env.DB_USERNAME || 'root',
-        PASSWORD: process.env.DB_PASSWORD || 'Snoopy2292',
+        PASSWORD: process.env.DB_PASSWORD || 'root',
         SYNCHRONIZE: Boolean(process.env.DB_SYNCHRONIZE) || false,
     },
     JWT_SECRET: process.env.JWT_SECRET || 'jwtsecret',
