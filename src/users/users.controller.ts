@@ -7,45 +7,34 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getAllUsers() {
+  getAllUsers(): Promise<User[]> {
     return this.usersService.getAllUsers();
   }
 
   @Get(':id')
-  getUserbyId(@Param('id') id: number) {
+  getUserbyId(@Param('id') id: number): Promise<User> {
     Logger.log('call to getUserbyId');
     return this.usersService.getUserbyId(id);
   }
 
-  // @Get('parcels/all')
-  // getAllParcels() {
-  //   Logger.log('call to getParcelsForAllUsers');
-  //   return this.usersService.getParcelsForAllUsers();
-  // }
-  //
-  // @Get('parcels/:id')
-  // getParcelsByUser(@Param('id') id: number) {
-  //   Logger.log('call to getParcelsById');
-  //   return this.usersService.getParcelsForAUser(id);
-  // }
+  @Get('name/:name')
+  getUserByName(@Param('name') name: string): Promise<User[]> {
+    return this.usersService.getUsersByName(name);
+  }
 
   @Post()
-  CreateUser(@Body() user: User) {
+  CreateUser(@Body() user: User): Promise<{ id: number }> {
     return this.usersService.createUser(user);
   }
 
   @Put(':id')
-  updateUser(@Param('id') id: number, @Body() user: User) {
+  updateUser(@Param('id') id: number, @Body() user: User): Promise<void> {
     return this.usersService.updateUser(id, user);
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') id: number) {
+  deleteUser(@Param('id') id: number): Promise<void> {
     return this.usersService.deleteUser(id);
   }
 
-  @Get('username/:name')
-  getUserByName(@Param('name') name: string) {
-    return this.usersService.getUserByName(name);
-  }
 }

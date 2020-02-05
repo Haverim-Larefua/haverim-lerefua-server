@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, Index} from 'typeorm';
 import 'reflect-metadata';
+import {IsNotEmpty} from 'class-validator';
 
 @Entity('roles')
 export class Role {
@@ -7,5 +8,6 @@ export class Role {
   id: number;
 
   @Column()
+  @IsNotEmpty()
   description: string;
 }

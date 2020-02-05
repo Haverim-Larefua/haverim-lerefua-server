@@ -1,4 +1,5 @@
 import { createConnection } from 'typeorm';
+import {environment} from '../env';
 
 export const databaseProviders = [
   {
@@ -6,13 +7,13 @@ export const databaseProviders = [
     useFactory: async () =>
       await createConnection({
         type: 'mysql',
-        host: 'localhost',
-        port: 3306,
-        username: 'root',
-        password: 'Snoopy2292',
-        database: 'refua_delivery',
+        host: environment.DB.HOST,
+        port: environment.DB.PORT,
+        username: environment.DB.USERNAME,
+        password: environment.DB.PASSWORD,
+        database: environment.DB.NAME,
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        synchronize: false,
+        synchronize: environment.DB.SYNCHRONIZE,
       }),
   },
 ];
