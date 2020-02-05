@@ -68,7 +68,7 @@ CREATE TABLE `parcel_tracking` (
 
 DROP TABLE IF EXISTS `push_token`;
 CREATE TABLE `push_token` (
-  `id` int(2) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `userId` int(11) DEFAULT NULL,
   `token` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`id`)
