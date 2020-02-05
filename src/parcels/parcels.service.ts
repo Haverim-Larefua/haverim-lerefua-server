@@ -1,7 +1,7 @@
 import {Injectable, Inject, Logger, HttpException, HttpStatus} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
-
+import { dbConnection } from './../db/database.providers';
 @Injectable()
 export class ParcelsService {
   constructor(
@@ -29,24 +29,21 @@ export class ParcelsService {
   }
 
   /**
-   * //TODO: Does not work, need to continue
    * Get all parcels belongs to userId, by specific statuses
    * @param userId
    */
-  getParcelsByUserIdForStatuses(userId: number, statuses: number[]): Promise<Parcel[]> {
-    return this.parcelRepository.find( {
-      where: [
-          { userId },
-          { 'parcel.parcel_tracking.statusId': statuses[0] },
-      ],
-      join: {
-        alias: 'parcel',
-        leftJoinAndSelect: {
-          user: 'parcel.user',
-          parcel_tracking: 'parcel.parcelTracking',
-        },
-      },
-    });
+  getParcelsByUserId(userId: number, statuses: number[]): Promise<Parcel[]> {
+    return dbConnection.getRepository(Parcel)
+        .createQueryBuilder('parcel')
+        .innerJoinAndSelect('parcel.user', 'user')
+        .innerJoinAndSelect('parcel.parcelTracking', 'tracking')
+        .where('user.id = :userId')
+        .andWhere('tracking.statusId IN (:...statuses)')
+        .setParameters({
+          userId,
+          statuses,
+        })
+        .getMany();
   }
 
   /**

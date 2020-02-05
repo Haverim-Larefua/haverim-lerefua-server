@@ -25,16 +25,16 @@ export class ParcelsController {
   }
   /**
    * Note: the request should look like this:
-   * status/:userId?statuses=1,2
+   * user/:userId?statuses=1,2
    */
-  @Get('status/:userId')
-  getParcelsByUserIdForStatuses(
+  @Get('user/:userId')
+  getParcelsByUserId(
       @Param('userId') userId: number,
       @Query() query,
   ): Promise<Parcel[]> {
     const statuses: number[] = query.statuses.split(',');
-    Logger.log(`[ParcelsController] getParcelsByUserIdForStatuses(${userId}, [${statuses}])`);
-    return this.parcelsService.getParcelsByUserIdForStatuses(userId, statuses);
+    Logger.log(`[ParcelsController] getParcelsByUserId(${userId}, [${statuses}])`);
+    return this.parcelsService.getParcelsByUserId(userId, statuses);
   }
 
   @Post()
