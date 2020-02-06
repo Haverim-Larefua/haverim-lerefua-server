@@ -4,7 +4,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ParcelsModule } from './parcels/parcels.module';
-import {ConfigurationModule} from './configuration/configuration.module';
 import {AuthenticationModule} from './authentication/authentication.module';
 import {environment} from './env';
 import {join} from 'path';
@@ -24,7 +23,6 @@ import {PushTokenModule} from './push-token/push-token.module';
       synchronize: environment.DB.SYNCHRONIZE,
     }),
     ParcelsModule,
-    ConfigurationModule,
     AuthenticationModule,
     PushTokenModule,
   ],

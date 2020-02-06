@@ -1,8 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import 'reflect-metadata';
 import { Parcel } from './parcel.entity';
-import {ParcelStatus} from './parcel.status.entity';
-import {IsDate, IsNotEmpty} from 'class-validator';
+import {IsDate, IsNotEmpty, Length} from 'class-validator';
 
 @Entity('parcel_tracking')
 export class ParcelTracking {
@@ -14,17 +13,21 @@ export class ParcelTracking {
   @IsDate()
   statusDate: Date;
 
-  @Column({name: 'status_fk'})
+  @Column()
   @IsNotEmpty()
-  statusId: number;
+  @Length(2, 30)
+  status: string;
+
+  @Column({name: 'user_fk'})
+  @IsNotEmpty()
+  userId: number;
 
   @Column({name: 'parcel_fk'})
   @IsNotEmpty()
   parcelId: number;
 
-  @OneToOne(type => ParcelStatus)
-  @JoinColumn({ name: 'status_fk', referencedColumnName: 'id' })
-  status: ParcelStatus;
+  @Column()
+  comments: string;
 
   @ManyToOne(type => Parcel)
   @JoinColumn({ name: 'parcel_fk', referencedColumnName: 'id' })

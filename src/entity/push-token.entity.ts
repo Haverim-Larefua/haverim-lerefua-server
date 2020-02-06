@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, OneToOne, JoinColumn} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn} from 'typeorm';
 import 'reflect-metadata';
 import {IsNotEmpty, Length} from 'class-validator';
 import {User} from './user.entity';
@@ -8,7 +8,7 @@ export class PushToken {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({name: 'user_fk'})
   @IsNotEmpty()
   userId: number;
 
@@ -18,6 +18,6 @@ export class PushToken {
   token: string;
 
   @OneToOne(type => User)
-  @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'user_fk', referencedColumnName: 'id' })
   user: User;
 }

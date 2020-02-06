@@ -1,8 +1,7 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, Index} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany, Index} from 'typeorm';
 import 'reflect-metadata';
 import { Parcel } from './parcel.entity';
-import {Role} from './role.entity';
-import {IsInt, IsNotEmpty, IsPhoneNumber, Length} from 'class-validator';
+import {IsNotEmpty, Length} from 'class-validator';
 
 @Entity('users')
 export class User {
@@ -19,27 +18,21 @@ export class User {
   @Length(3, 30)
   lastName: string;
 
-  @Column()
-  @IsNotEmpty()
-  @Length(5, 100)
-  address: string;
-
   @Column({ name: 'delivery_area' })
   @IsNotEmpty()
   @Length(2, 20)
   deliveryArea: string;
 
+  /*
+  Note: MySql does not support array of int, so using string here
+  The value should look like this: [1,4,5]
+  */
   @Column({ name: 'delivery_days' })
   deliveryDays: string;
 
   @Column()
   @IsNotEmpty()
-  @IsPhoneNumber('IL')
   phone: string;
-
-  @Column({name: 'role_fk'})
-  @IsInt()
-  roleId: number;
 
   @Column()
   notes: string;
@@ -56,10 +49,6 @@ export class User {
 
   @Column({ select: false })
   salt: string;
-
-  @OneToOne(type => Role)
-  @JoinColumn({ name: 'role_fk', referencedColumnName: 'id' })
-  role: Role;
 
   @OneToMany(type => Parcel, parcel => parcel.user)
   parcels: Parcel[];

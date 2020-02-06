@@ -18,28 +18,33 @@ export class ParcelsController {
     return this.parcelsService.getParcelById(id);
   }
 
-  @Get('find/:key')
-  getParcelByNo(@Param('key') key: string): Promise<Parcel[]> {
-    Logger.log(`[ParcelsController] getParcelByNo()`);
-    return this.parcelsService.getParcelByNo(key);
+  @Get('identity/:identity')
+  getParcelByIdentity(@Param('identity') identity: string): Promise<Parcel[]> {
+    Logger.log(`[ParcelsController] getParcelByIdentity(${identity})`);
+    return this.parcelsService.getParcelByIdentity(identity);
   }
   /**
-   * Note: the request should look like this:
-   * user/:userId?statuses=1,2
+   * Note: the request can get also query params with the relevant statuses to return
+   * the request should look like this:
+   * user/:userId?last_statuses=delivered,ready
    */
   @Get('user/:userId')
   getParcelsByUserId(
       @Param('userId') userId: number,
       @Query() query,
   ): Promise<Parcel[]> {
-    const statuses: number[] = query.statuses.split(',');
-    Logger.log(`[ParcelsController] getParcelsByUserId(${userId}, [${statuses}])`);
-    return this.parcelsService.getParcelsByUserId(userId, statuses);
+    Logger.log(`[ParcelsController] getParcelsByUserId(${userId}, ${JSON.stringify(query)})`);
+    if (query.last_statuses) {
+      const statuses: string[] = query.last_statuses.split(',');
+      return this.parcelsService.getParcelsByUserIdSpecificStatuses(userId, statuses);
+    } else {
+      return this.parcelsService.getParcelsByUserId(userId);
+    }
   }
 
   @Post()
   CreateParcel(@Body() parcel: Parcel) {
-    Logger.log(`[ParcelsController] CreateParcel()`);
+    Logger.log(`[ParcelsController] CreateParcel(${JSON.stringify(parcel)})`);
     return this.parcelsService.createParcel(parcel);
   }
 

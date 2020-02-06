@@ -14,6 +14,7 @@ export class UsersService {
    * Return all users
    */
   async getAllUsers(): Promise<User[]> {
+    Logger.log(`[UsersService] getAllUsers()`);
     return this.userRepository.find({});
   }
 
@@ -22,6 +23,7 @@ export class UsersService {
    * @param id
    */
   async getUserbyId(id: number): Promise<User> {
+    Logger.log(`[UsersService] getUserbyId(${id})`);
     const user: User = await this.userRepository.findOne({
       where: {
         id,
@@ -35,9 +37,6 @@ export class UsersService {
       },
     });
     return user;
-    // return this.userRepository.findOne(id, {
-    //   relations: ['role', 'parcels'],
-    // });
   }
 
   /**
@@ -45,7 +44,7 @@ export class UsersService {
    * @param name
    */
   async getUsersByName(name: string): Promise<User[]> {
-    Logger.log(`call to getUserByName: '${name}'`);
+    Logger.log(`[UsersService] getUserByName(${name})`);
     const users: User[] = await this.userRepository.find({
       where: [
         { firstName: Like(`%${name}%`) },
@@ -63,16 +62,16 @@ export class UsersService {
   }
 
   /**
-   * Create User in DB, this method will create random hash and merge to it the password, then generate hash that
+   * Create User in DB, this method will create random hash (salt) and merge to it the password, then generate hash that
    * will be saved in database.
    * @param user
    * Note: Return 201 in case of success (and the user id that was created)
    */
   async createUser(user: User): Promise<{ id: number }> {
+    Logger.log(`[UsersService] createUser(${JSON.stringify(user)})`);
     const pass: IPassword = saltHashPassword(user.password);
     user.password = pass.hash;
     user.salt = pass.salt;
-    Logger.debug(`[AuthenticationService] createUser() user: ${JSON.stringify(user)}`);
     const result: User = await this.userRepository.save(user);
     return {
       id: result.id,
@@ -86,6 +85,7 @@ export class UsersService {
    * Note: Return 201 in case of success (does not return the user)
    */
   async updateUser(id: number, user: User): Promise<void> {
+    Logger.log(`[UsersService] updateUser(${id}, ${JSON.stringify(user)})`);
     if (user.password) {
       const pass: IPassword = saltHashPassword(user.password);
       user.password = pass.hash;
@@ -100,6 +100,7 @@ export class UsersService {
    * Note: Return 200 in case of success (does not return the user)
    */
   async deleteUser(id: number): Promise<void> {
+    Logger.log(`[UsersService] deleteUser(${id})`);
     await this.userRepository.delete(id);
   }
 
@@ -111,8 +112,9 @@ export class UsersService {
    * In User entity password and salt will not return (@Column({ select: false }))
    */
   async validateUser(username: string, password: string): Promise<User> {
+    Logger.log(`[UsersService] validateUser(${username},'*****')`);
     const user =  await this.userRepository.findOne({
-      select: ['firstName', 'lastName', 'address', 'deliveryArea', 'deliveryDays', 'phone', 'roleId', 'notes', 'username', 'password', 'salt'],
+      select: ['firstName', 'lastName', 'deliveryArea', 'deliveryDays', 'phone', 'notes', 'username', 'password', 'salt'],
       where: [ { username } ],
     });
     if (!user || Object.keys(user).length === 0) {

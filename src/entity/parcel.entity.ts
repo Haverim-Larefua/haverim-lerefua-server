@@ -2,7 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne 
 import 'reflect-metadata';
 import { User } from './user.entity';
 import { ParcelTracking } from './parcel.tracking.entity';
-import {IsDate, IsNotEmpty, Length} from 'class-validator';
+import { IsEnum, IsNotEmpty, Length} from 'class-validator';
 
 @Entity('parcel')
 export class Parcel {
@@ -11,7 +11,7 @@ export class Parcel {
 
   @Column({ unique: true })
   @IsNotEmpty()
-  no: number;
+  identity: number;
 
   @Column()
   @IsNotEmpty()
@@ -21,6 +21,11 @@ export class Parcel {
   @Column()
   @IsNotEmpty()
   @Length(2, 100)
+  address: string;
+
+  @Column()
+  @IsNotEmpty()
+  @Length(7, 100)
   phone: string;
 
   @Column({ name: 'customer_name' })
@@ -29,25 +34,25 @@ export class Parcel {
   customerName: string;
 
   @Column()
-  @IsNotEmpty()
-  @Length(2, 100)
-  address: string;
+  currentUserId: number;
+
+  @Column() // TODO: currentStatus [delivered, sdfdsf]
+  @IsNotEmpty() // TODO: in create parcel check if exits and if not set default
+  @Length(2, 30)
+  @IsEnum(['ready', 'delivered', 'distribution', 'exception'])
+  parcelTrackingStatus: string;
 
   @Column()
-  userId: number;
-
-  @Column()
-  @Length(3, 100)
   comments: string;
 
-  @Column({ name: 'update_date' })
-  updateDate: Date;
+  @Column({ name: 'lastUpdateDate' })
+  lastUpdateDate: Date;
 
   @Column()
   signature: string;
 
   @OneToOne(type => User)
-  @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'currentUserId', referencedColumnName: 'id' })
   user: User;
 
   @OneToMany(type => ParcelTracking, tracking => tracking.parcel)
