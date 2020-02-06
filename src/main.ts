@@ -1,13 +1,34 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {Logger, ValidationPipe} from '@nestjs/common';
+import {INestApplication, Logger, ValidationPipe} from '@nestjs/common';
 import * as cors from 'cors';
 import {environment} from './env';
+import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
+
+/**
+ * Swagger will not be established in case SWAGGER_UP flag is false
+ *
+ * @param app
+ */
+function setupSwagger(app: INestApplication) {
+  if (environment.SWAGGER_UP) {
+    // Swagger Setup
+    const options = new DocumentBuilder()
+        .setTitle('Haverim Lerfua')
+        .setDescription('Haverim Lerfua description')
+        .setVersion('1.0')
+        .setSchemes('http')
+        .build();
+    const document = SwaggerModule.createDocument(app, options);
+    SwaggerModule.setup('swagger', app, document);
+  }
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cors());
   app.useGlobalPipes(new ValidationPipe());
+  setupSwagger(app);
   Logger.log(`app is listening on port: ${environment.SERVER.PORT}`);
   await app.listen(environment.SERVER.PORT);
 }

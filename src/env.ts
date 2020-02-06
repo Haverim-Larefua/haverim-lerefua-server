@@ -1,4 +1,5 @@
 export const environment = {
+    VERSION: 'v1',
     SERVER: {
         PROTOCOL: process.env.SERVER_PROTOCOL || 'http',
         PORT: process.env.SERVER_PORT || 3001,
@@ -12,4 +13,5 @@ export const environment = {
         SYNCHRONIZE: Boolean(process.env.DB_SYNCHRONIZE) || false,
     },
     JWT_SECRET: process.env.JWT_SECRET || 'jwtsecret',
+    SWAGGER_UP: true,
 };
