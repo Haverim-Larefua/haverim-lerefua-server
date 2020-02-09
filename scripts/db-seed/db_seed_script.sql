@@ -18,6 +18,21 @@ CREATE TABLE `users` (
   UNIQUE(username)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
+DROP TABLE IF EXISTS `admins`;
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(20) DEFAULT NULL,
+  `last_name` varchar(30) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `username` varchar(30) DEFAULT NULL,
+  `password` varchar(200) DEFAULT NULL,
+  `salt` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE(username)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 DROP TABLE IF EXISTS `parcel`;
 CREATE TABLE `parcel` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

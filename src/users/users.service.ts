@@ -22,7 +22,7 @@ export class UsersService {
    * Get user by his id, joining the parcels belongs to user and the parcel tracking status
    * @param id
    */
-  async getUserbyId(id: number): Promise<User> {
+  async getUserById(id: number): Promise<User> {
     Logger.log(`[UsersService] getUserbyId(${id})`);
     const user: User = await this.userRepository.findOne({
       where: {
@@ -120,18 +120,18 @@ export class UsersService {
   async validateUser(username: string, password: string): Promise<User> {
     Logger.log(`[UsersService] validateUser(${username},'*****')`);
     const user =  await this.userRepository.findOne({
-      select: ['firstName', 'lastName', 'deliveryArea', 'deliveryDays', 'phone', 'notes', 'username', 'password', 'salt', 'active'],
+      select: ['id', 'username', 'password', 'salt', 'active'],
       where: [ { username, active: true } ],
     });
     if (!user || Object.keys(user).length === 0) {
-      Logger.error(`[AuthenticationService] login() error with user credentials: ${username}`);
+      Logger.error(`[UsersService] validateUser() error with user credentials: ${username}`);
       throw new UnauthorizedException();
     }
     const dbPass = sha512(password, user.salt).hash;
     if (dbPass !== user.password) {
       throw new UnauthorizedException();
     }
-    Logger.debug(`[AuthenticationService] login() user: ${JSON.stringify(user)}`);
+    Logger.debug(`[UsersService] validateUser() user: ${JSON.stringify(user)}`);
     return user;
   }
 

@@ -5,9 +5,11 @@ import {environment} from '../env';
 import {AuthenticationController} from './authentication.controller';
 import {AuthenticationService} from './authentication.service';
 import {UsersService} from '../users/users.service';
-import {JwtStrategy} from './jwt.strategy';
+import {AppStrategy} from './app.strategy';
 import {userProviders} from '../users/users.providers';
 import {DatabaseModule} from '../db/database.modules';
+import {adminProviders} from '../admins/admins.providers';
+import {AdminsService} from '../admins/admins.service';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import {DatabaseModule} from '../db/database.modules';
     }),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, JwtStrategy, ...userProviders, UsersService],
+  providers: [AuthenticationService, AppStrategy, ...userProviders, UsersService, ...adminProviders, AdminsService],
   exports: [PassportModule, AuthenticationService],
 })
 export class AuthenticationModule {}

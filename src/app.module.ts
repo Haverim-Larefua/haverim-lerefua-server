@@ -8,10 +8,12 @@ import {AuthenticationModule} from './authentication/authentication.module';
 import {environment} from './env';
 import {join} from 'path';
 import {PushTokenModule} from './push-token/push-token.module';
+import {AdminsModule} from './admins/admins.module';
 
 @Module({
   imports: [
     UsersModule,
+    AdminsModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: environment.DB.HOST,

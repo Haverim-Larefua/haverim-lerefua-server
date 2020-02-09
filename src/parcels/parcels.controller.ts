@@ -1,6 +1,7 @@
-import {Controller, Get, Post, Put, Param, Body, Logger, Delete, Query} from '@nestjs/common';
+import {Controller, Get, Post, Put, Param, Body, Logger, Delete, Query, UseGuards} from '@nestjs/common';
 import { ParcelsService } from './parcels.service';
 import { Parcel } from '../entity/parcel.entity';
+import {AuthGuard} from '@nestjs/passport';
 
 @Controller('parcels')
 export class ParcelsController {
@@ -12,12 +13,14 @@ export class ParcelsController {
     return this.parcelsService.getAllParcels();
   }
 
+  @UseGuards(AuthGuard('app'))
   @Get(':id')
   getParcelById(@Param('id') id: number): Promise<Parcel> {
     Logger.log(`[ParcelsController] getParcelById()`);
     return this.parcelsService.getParcelById(id);
   }
 
+  @UseGuards(AuthGuard('app'))
   @Get('identity/:identity')
   getParcelByIdentity(@Param('identity') identity: string): Promise<Parcel[]> {
     Logger.log(`[ParcelsController] getParcelByIdentity(${identity})`);
