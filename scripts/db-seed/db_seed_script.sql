@@ -13,6 +13,7 @@ CREATE TABLE `users` (
   `username` varchar(30) DEFAULT NULL,
   `password` varchar(200) DEFAULT NULL,
   `salt` varchar(30) DEFAULT NULL,
+  `active` boolean DEFAULT false,
   PRIMARY KEY (`id`),
   UNIQUE(username)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

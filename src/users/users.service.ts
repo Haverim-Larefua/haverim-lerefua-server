@@ -15,7 +15,7 @@ export class UsersService {
    */
   async getAllUsers(): Promise<User[]> {
     Logger.log(`[UsersService] getAllUsers()`);
-    return this.userRepository.find({});
+    return this.userRepository.find({ active: true });
   }
 
   /**
@@ -27,6 +27,7 @@ export class UsersService {
     const user: User = await this.userRepository.findOne({
       where: {
         id,
+        active: true,
       },
       join: {
         alias: 'person',
@@ -49,6 +50,7 @@ export class UsersService {
       where: [
         { firstName: Like(`%${name}%`) },
         { lastName: Like(`%${name}%`) },
+        { active: true },
       ],
       join: {
         alias: 'person',
@@ -72,6 +74,7 @@ export class UsersService {
     const pass: IPassword = saltHashPassword(user.password);
     user.password = pass.hash;
     user.salt = pass.salt;
+    user.active = true;
     const result: User = await this.userRepository.save(user);
     return {
       id: result.id,
@@ -95,13 +98,16 @@ export class UsersService {
   }
 
   /**
-   * Delete the user
+   * Delete the user, note this is not really deleting but updating the active parameter to false
    * @param id
    * Note: Return 200 in case of success (does not return the user)
    */
   async deleteUser(id: number): Promise<void> {
     Logger.log(`[UsersService] deleteUser(${id})`);
-    await this.userRepository.delete(id);
+    const user: User = await this.userRepository.findOne({ id });
+    user.active = false;
+    await this.userRepository.update(id, user);
+    // await this.userRepository.delete(id);
   }
 
   /**
@@ -114,8 +120,8 @@ export class UsersService {
   async validateUser(username: string, password: string): Promise<User> {
     Logger.log(`[UsersService] validateUser(${username},'*****')`);
     const user =  await this.userRepository.findOne({
-      select: ['firstName', 'lastName', 'deliveryArea', 'deliveryDays', 'phone', 'notes', 'username', 'password', 'salt'],
-      where: [ { username } ],
+      select: ['firstName', 'lastName', 'deliveryArea', 'deliveryDays', 'phone', 'notes', 'username', 'password', 'salt', 'active'],
+      where: [ { username, active: true } ],
     });
     if (!user || Object.keys(user).length === 0) {
       Logger.error(`[AuthenticationService] login() error with user credentials: ${username}`);

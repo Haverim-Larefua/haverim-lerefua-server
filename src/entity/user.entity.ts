@@ -50,6 +50,9 @@ export class User {
   @Column({ select: false })
   salt: string;
 
+  @Column()
+  active: boolean;
+
   @OneToMany(type => Parcel, parcel => parcel.user)
   parcels: Parcel[];
 }
