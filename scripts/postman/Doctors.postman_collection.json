@@ -1,0 +1,687 @@
+{
+	"info": {
+		"_postman_id": "e765894a-0d31-4290-8202-ec8168844cf1",
+		"name": "Doctors",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get all users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsInVzZXJuYW1lIjoicm96bWFuIiwiaWF0IjoxNTgxMjU1MzcyLCJleHAiOjE1ODEyNTg5NzJ9.txXLtm0x5KNHkL2CKzO9-ROokKOubhIJ-phwpNGoQvk",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/users",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/users/13",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"users",
+								"13"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/users/name/israel",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"users",
+								"name",
+								"israel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"ישראל\",\n  \"lastName\": \"לביא\",\n  \"deliveryArea\": \"באר שבע\",\n  \"deliveryDays\": \"[1,3]\",\n  \"phone\": \"052-4443333\",\n  \"notes\": \"יכול בשעות הבוקר\",\n  \"username\": \"israel\",\n  \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/users",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"ישראל\",\n  \"lastName\": \"לביא\",\n  \"deliveryArea\": \"באר שבע\",\n  \"deliveryDays\": \"[1,3]\",\n  \"phone\": \"052-4443334\",\n  \"notes\": \"יכול בשעות הבוקר\",\n  \"username\": \"israel\",\n  \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/users/21",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"users",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"ישראל\",\n  \"lastName\": \"לביא\",\n  \"address\": \"תל אביב, רחוב דיזנגוף 12/5\",\n  \"deliveryArea\": \"תל אביב\",\n  \"deliveryDays\": 3,\n  \"phone\": \"052-4443333\",\n  \"roleFK\": 1,\n  \"notes\": \"יכול בשעות הערב\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/users/21",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"users",
+								"21"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Admins",
+			"item": [
+				{
+					"name": "Get all admins",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsInVzZXJuYW1lIjoicm96bWFuIiwiaWF0IjoxNTgxMjU1MzcyLCJleHAiOjE1ODEyNTg5NzJ9.txXLtm0x5KNHkL2CKzO9-ROokKOubhIJ-phwpNGoQvk"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/admins",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"admins"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get admin by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/admins/13",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"admins",
+								"13"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"ישראל\",\n  \"lastName\": \"לביא\",\n  \"phone\": \"052-4443333\",\n  \"username\": \"israel\",\n  \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/admins",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"admins"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update admin",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"ישראל\",\n  \"lastName\": \"לביא\",\n  \"phone\": \"052-4443334\",\n  \"username\": \"israel\",\n  \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/admins/21",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"admins",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete admin",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"ישראל\",\n  \"lastName\": \"לביא\",\n  \"address\": \"תל אביב, רחוב דיזנגוף 12/5\",\n  \"deliveryArea\": \"תל אביב\",\n  \"deliveryDays\": 3,\n  \"phone\": \"052-4443333\",\n  \"roleFK\": 1,\n  \"notes\": \"יכול בשעות הערב\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/admins/15",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"admins",
+								"15"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Parcels",
+			"item": [
+				{
+					"name": "Get all parcels",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get parcel by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels/6",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get parcel by identity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels/identity/55255655",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels",
+								"identity",
+								"55255655"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get parcels by user id (with specific statuses)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels/user/14?last_statuses=delivered",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels",
+								"user",
+								"14"
+							],
+							"query": [
+								{
+									"key": "last_statuses",
+									"value": "delivered"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get parcels by user id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels/user/14",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels",
+								"user",
+								"14"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create parcel",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identity\": \"12335\",\n  \"city\": \"תל אביב\",\n  \"address\": \"כתובת של הלקוח\",\n  \"phone\": \"052-4443333\",\n  \"customerName\": \"משה אביבי\",\n  \"currentUserId\": 14,\n  \"parcelTrackingStatus\": \"delivered\",\n  \"comments\": \"הערות לשליח\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign parcel to user",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"no\": \"12335\",\n  \"city\": \"תל אביב\",\n  \"phone\": \"052-4443333\",\n  \"customerName\": \"משה אביבי\",\n  \"address\": \"כתובת של הלקוח\",\n  \"comments\": \"הערות לשליח\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels/assign/14/8",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels",
+								"assign",
+								"14",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update parcel",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"no\": \"12334\",\n  \"city\": \"תל אביב\",\n  \"phone\": \"052-4443333\",\n  \"customerName\": \"משה אביבי\",\n  \"address\": \"כתובת של הלקוח\",\n  \"userId\": 24,\n  \"comments\": \"לשליח חדשות לשליח\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels/6",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete parcel",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"no\": \"12334\",\n  \"city\": \"תל אביב\",\n  \"phone\": \"052-4443333\",\n  \"customerName\": \"משה אביבי\",\n  \"address\": \"כתובת של הלקוח\",\n  \"userId\": 24,\n  \"comments\": \"לשליח חדשות לשליח\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/parcels/6",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"parcels",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"rozman\",\n  \"password\": \"123456\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/auth/user",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"auth",
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "PushTokens",
+			"item": [
+				{
+					"name": "Get push tokens",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/push-token",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"push-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update push token for user",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"token\": \"123456789\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}{{host}}:{{port}}{{url}}/push-token/update/15",
+							"host": [
+								"{{protocol}}{{host}}"
+							],
+							"port": "{{port}}{{url}}",
+							"path": [
+								"push-token",
+								"update",
+								"15"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
