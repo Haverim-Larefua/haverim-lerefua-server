@@ -12,6 +12,10 @@ export const environment = {
         PASSWORD: process.env.DB_PASSWORD || 'root',
         SYNCHRONIZE: Boolean(process.env.DB_SYNCHRONIZE) || false,
     },
+    URLS: {
+        PUSH_MOBILE: 'https://fcm.googleapis.com/fcm/send',
+    },
+    FIREBASE_API_KEY: 'AIzaSyA279IQxpFTysJAwr8rz0_KfgopeZDSjQY',
     JWT_SECRET: process.env.JWT_SECRET || 'jwtsecret',
     SWAGGER_UP: true,
 };
