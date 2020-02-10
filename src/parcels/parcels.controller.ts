@@ -2,9 +2,14 @@ import {Controller, Get, Post, Put, Param, Body, Logger, Delete, Query, UseGuard
 import { ParcelsService } from './parcels.service';
 import { Parcel } from '../entity/parcel.entity';
 import {AuthGuard} from '@nestjs/passport';
+import {ParcelStatus} from '../entity/status.model';
 
 interface IAddSignatureRequest {
   signature: string;
+}
+
+interface IUpdateParcelsStatusRequest {
+  parcels: number[];
 }
 
 @Controller('parcels')
@@ -72,7 +77,16 @@ export class ParcelsController {
     return this.parcelsService.addParcelSignature(userId, parcelId, body.signature);
   }
 
-    // @Post()
+  @Put('user/:userId/:status')
+  updateParcelsStatus(
+      @Param('userId') userId: number,
+      @Param('status') status: ParcelStatus,
+      @Body() body: IUpdateParcelsStatusRequest): Promise<any> {
+    Logger.log(`[ParcelsController] updateParcelsStatus(${userId}, ${status}, ${body.parcels})`);
+    return this.parcelsService.updateParcelsStatus(userId, status, body.parcels);
+  }
+
+  // @Post()
   // CreateParcels(@Body() parcels: Parcel[]) {
   //   /*Logger.log(`[ParcelsController] CreateParcels()`);
   //   const newParcel = this.parcelsService.findByNo(parcel.no); */

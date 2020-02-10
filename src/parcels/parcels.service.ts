@@ -141,7 +141,7 @@ export class ParcelsService {
   }
 
     /**
-     * Adding signature to parcel
+     * Adding signature to parcel, also update Parcel tracking status table with status delivered
      * @param userId
      * @param parcelId
      * @param signature
@@ -155,8 +155,34 @@ export class ParcelsService {
     Logger.log(`[ParcelsService] parcel: ${JSON.stringify(parcel)}`);
     parcel.currentUserId = userId;
     parcel.signature = signature;
-    await this.parcelRepository.save(parcel);
+
+    const result: Parcel = await this.parcelRepository.save(parcel);
+
+      // Update parcel_tracking table
+    await this.parcelTrackingRepository.save({
+        parcelId: result.id,
+        status: ParcelStatus.delivered,
+        statusDate: new Date(),
+        userId: parcel.currentUserId,
+      } as ParcelTracking);
+
     return this.getParcelById(parcelId);
+  }
+
+  async updateParcelsStatus(userId: number, status: ParcelStatus, parcelsId: number[]): Promise<any> {
+    Logger.log(`[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsId})`);
+    const promises: any = [];
+    parcelsId.forEach((id: number) => {
+        promises.push(
+            this.parcelTrackingRepository.save({
+              parcelId: id,
+              status,
+              statusDate: new Date(),
+              userId,
+            } as ParcelTracking),
+        );
+    });
+    return Promise.all(promises);
   }
 
   /**
