@@ -1,4 +1,4 @@
-import {Injectable, Inject, Logger, HttpException, HttpStatus} from '@nestjs/common';
+import {Injectable, Inject, Logger, HttpException, HttpStatus, InternalServerErrorException} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 import { dbConnection } from './../db/database.providers';
@@ -131,15 +131,27 @@ export class ParcelsService {
   async assignParcelToUser(userId: number, parcelId: number): Promise<Parcel> {
     Logger.log(`[ParcelsService] parcelId: ${parcelId}`);
     const parcel: Parcel = await this.getParcelById(parcelId);
+    if (!parcel) {
+       throw new InternalServerErrorException(`Parcel ${parcelId} was not found`);
+    }
     Logger.log(`[ParcelsService] parcel: ${JSON.stringify(parcel)}`);
     parcel.currentUserId = userId;
     await this.parcelRepository.save(parcel);
     return this.getParcelById(parcelId);
   }
 
+    /**
+     * Adding signature to parcel
+     * @param userId
+     * @param parcelId
+     * @param signature
+     */
   async addParcelSignature(userId: number, parcelId: number, signature: string): Promise<Parcel> {
     Logger.log(`[ParcelsService] addParcelSignature: ${parcelId}`);
     const parcel: Parcel = await this.getParcelById(parcelId);
+    if (!parcel) {
+        throw new InternalServerErrorException(`Parcel ${parcelId} was not found`);
+    }
     Logger.log(`[ParcelsService] parcel: ${JSON.stringify(parcel)}`);
     parcel.currentUserId = userId;
     parcel.signature = signature;
