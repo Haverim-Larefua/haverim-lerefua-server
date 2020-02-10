@@ -51,7 +51,7 @@ export class ParcelsController {
     return this.parcelsService.createParcel(parcel);
   }
 
-  @Put('assign/:userId/:parcelId')
+  @Put(':parcelId/assign/:userId')
   assignParcelToUser(
       @Param('userId') userId: number,
       @Param('parcelId') parcelId: number): Promise<Parcel> {
