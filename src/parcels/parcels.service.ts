@@ -129,10 +129,20 @@ export class ParcelsService {
    * Note: Can not return this.parcelRepository.save(parcel), because it does not return the parcel with the relationship of user
    */
   async assignParcelToUser(userId: number, parcelId: number): Promise<Parcel> {
-    Logger.log(`[ParcelsController] parcelId: ${parcelId}`);
-    const parcel: Parcel = await this.parcelRepository.findOne({ id: parcelId });
-    Logger.log(`[ParcelsController] parcel: ${JSON.stringify(parcel)}`);
+    Logger.log(`[ParcelsService] parcelId: ${parcelId}`);
+    const parcel: Parcel = await this.getParcelById(parcelId);
+    Logger.log(`[ParcelsService] parcel: ${JSON.stringify(parcel)}`);
     parcel.currentUserId = userId;
+    await this.parcelRepository.save(parcel);
+    return this.getParcelById(parcelId);
+  }
+
+  async addParcelSignature(userId: number, parcelId: number, signature: string): Promise<Parcel> {
+    Logger.log(`[ParcelsService] addParcelSignature: ${parcelId}`);
+    const parcel: Parcel = await this.getParcelById(parcelId);
+    Logger.log(`[ParcelsService] parcel: ${JSON.stringify(parcel)}`);
+    parcel.currentUserId = userId;
+    parcel.signature = signature;
     await this.parcelRepository.save(parcel);
     return this.getParcelById(parcelId);
   }

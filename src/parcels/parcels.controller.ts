@@ -3,6 +3,10 @@ import { ParcelsService } from './parcels.service';
 import { Parcel } from '../entity/parcel.entity';
 import {AuthGuard} from '@nestjs/passport';
 
+interface IAddSignatureRequest {
+  signature: string;
+}
+
 @Controller('parcels')
 export class ParcelsController {
   constructor(private readonly parcelsService: ParcelsService) {}
@@ -57,6 +61,15 @@ export class ParcelsController {
       @Param('parcelId') parcelId: number): Promise<Parcel> {
     Logger.log(`[ParcelsController] assignParcelToUser(${userId}, ${parcelId})`);
     return this.parcelsService.assignParcelToUser(userId, parcelId);
+  }
+
+  @Put(':parcelId/signature/:userId')
+  addParcelSignature(
+      @Param('userId') userId: number,
+      @Param('parcelId') parcelId: number,
+      @Body() body: IAddSignatureRequest): Promise<Parcel> {
+    Logger.log(`[ParcelsController] addParcelSignature(${userId}, ${parcelId})`);
+    return this.parcelsService.addParcelSignature(userId, parcelId, body.signature);
   }
 
     // @Post()
