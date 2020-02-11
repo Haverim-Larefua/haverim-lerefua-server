@@ -103,13 +103,7 @@ export class ParcelsService {
     const result: Parcel = await this.parcelRepository.save(parcel);
 
     // Update parcel_tracking table
-    await this.parcelTrackingRepository.save({
-      parcelId: result.id,
-      status,
-      statusDate: new Date(),
-      userId: parcel.currentUserId,
-    } as ParcelTracking);
-
+    await this.updateParcelsStatus(parcel.currentUserId, status, [result.id]);
     return result;
   }
 
@@ -158,13 +152,8 @@ export class ParcelsService {
 
     const result: Parcel = await this.parcelRepository.save(parcel);
 
-      // Update parcel_tracking table
-    await this.parcelTrackingRepository.save({
-        parcelId: result.id,
-        status: ParcelStatus.delivered,
-        statusDate: new Date(),
-        userId: parcel.currentUserId,
-      } as ParcelTracking);
+    // Update parcel_tracking table
+    await this.updateParcelsStatus(parcel.currentUserId, ParcelStatus.delivered, [result.id]);
 
     return this.getParcelById(parcelId);
   }
@@ -172,8 +161,13 @@ export class ParcelsService {
   async updateParcelsStatus(userId: number, status: ParcelStatus, parcelsId: number[]): Promise<any> {
     Logger.log(`[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsId})`);
     const promises: any = [];
-    parcelsId.forEach((id: number) => {
-        promises.push(
+    parcelsId.forEach(async (id: number) => {
+      const currentParcel: Parcel = await this.getParcelById(id);
+      currentParcel.parcelTrackingStatus = status;
+      promises.push(
+          this.parcelRepository.update(id, currentParcel),
+      );
+      promises.push(
             this.parcelTrackingRepository.save({
               parcelId: id,
               status,

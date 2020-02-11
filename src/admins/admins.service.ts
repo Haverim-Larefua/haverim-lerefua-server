@@ -80,7 +80,7 @@ export class AdminsService {
   async validateAdmin(username: string, password: string): Promise<Admin> {
     Logger.log(`[AdminsService] validateAdmin(${username},'*****')`);
     const admin =  await this.adminRepository.findOne({
-      select: ['id', 'username', 'password', 'salt'],
+      select: ['id', 'username', 'firstName', 'lastName', 'password', 'salt'],
       where: [ { username } ],
     });
     if (!admin || Object.keys(admin).length === 0) {

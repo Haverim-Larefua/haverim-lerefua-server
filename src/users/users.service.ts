@@ -120,7 +120,7 @@ export class UsersService {
   async validateUser(username: string, password: string): Promise<User> {
     Logger.log(`[UsersService] validateUser(${username},'*****')`);
     const user =  await this.userRepository.findOne({
-      select: ['id', 'username', 'password', 'salt', 'active'],
+      select: ['id', 'username', 'firstName', 'lastName', 'password', 'salt', 'active'],
       where: [ { username, active: true } ],
     });
     if (!user || Object.keys(user).length === 0) {
