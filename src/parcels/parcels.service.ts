@@ -107,15 +107,6 @@ export class ParcelsService {
     return result;
   }
 
-  // async createParcels(parcels: Parcel[]) {
-  //   //  const p = await this.parcelRepository.find({ no: parcel.no });
-  //   // if (p.length === 0) {
-  //   //   return this.parcelRepository.save(parcel);
-  //   // } else {
-  //   return 'Already exits';
-  //   // }
-  // }
-
   /**
    * Assign parcel to user, and return the new parcel object with the user
    * @param userId
@@ -158,34 +149,40 @@ export class ParcelsService {
     return this.getParcelById(parcelId);
   }
 
-  async updateParcelsStatus(userId: number, status: ParcelStatus, parcelsId: number[]): Promise<any> {
-    Logger.log(`[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsId})`);
-    const promises: any = [];
-    parcelsId.forEach(async (id: number) => {
-      const currentParcel: Parcel = await this.getParcelById(id);
-      currentParcel.parcelTrackingStatus = status;
-      promises.push(
-          this.parcelRepository.update(id, currentParcel),
-      );
-      promises.push(
-            this.parcelTrackingRepository.save({
-              parcelId: id,
-              status,
-              statusDate: new Date(),
-              userId,
-            } as ParcelTracking),
-        );
+  updateParcelsStatus(userId: number, status: ParcelStatus, parcelsIds: number[]): Promise<number[]> {
+    Logger.log(`[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`);
+    return new Promise<number[]>((resolve, reject) => {
+      parcelsIds.forEach(async (id: number) => {
+        await dbConnection.getRepository(Parcel)
+            .createQueryBuilder()
+            .update(Parcel)
+            .set({ parcelTrackingStatus: status, lastUpdateDate: new Date() })
+            .where('id = :id', { id })
+            .execute();
+
+        const parcelTracking: Partial<ParcelTracking> = {
+          statusDate: new Date(),
+          status,
+
+        };
+        await this.addParcelTracking(parcelTracking);
+      });
+      resolve(parcelsIds);
     });
-    return Promise.all(promises);
   }
 
-  /**
+  addParcelTracking = (parcelTracking: Partial<ParcelTracking>): Promise<ParcelTracking> => {
+    return this.parcelTrackingRepository.save(parcelTracking);
+  }
+
+  /**s
    * Update parcel by id
    * @param id
    * @param parcel
    */
-  updateParcel(id: number, parcel: Parcel) {
-    return this.parcelRepository.update(id, parcel);
+  async updateParcel(id: number, parcel: Parcel): Promise<Parcel> {
+    await this.parcelRepository.update(id, parcel);
+    return this.getParcelById(id);
   }
 
   /**

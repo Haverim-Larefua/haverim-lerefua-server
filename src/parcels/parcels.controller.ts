@@ -22,7 +22,7 @@ export class ParcelsController {
     return this.parcelsService.getAllParcels();
   }
 
-  @UseGuards(AuthGuard('app'))
+  // @UseGuards(AuthGuard('app'))
   @Get(':id')
   getParcelById(@Param('id') id: number): Promise<Parcel> {
     Logger.log(`[ParcelsController] getParcelById()`);
@@ -81,7 +81,7 @@ export class ParcelsController {
   updateParcelsStatus(
       @Param('userId') userId: number,
       @Param('status') status: ParcelStatus,
-      @Body() body: IUpdateParcelsStatusRequest): Promise<any> {
+      @Body() body: IUpdateParcelsStatusRequest): Promise<number[]> {
     Logger.log(`[ParcelsController] updateParcelsStatus(${userId}, ${status}, ${body.parcels})`);
     return this.parcelsService.updateParcelsStatus(userId, status, body.parcels);
   }
