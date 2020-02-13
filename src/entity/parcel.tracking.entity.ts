@@ -19,7 +19,6 @@ export class ParcelTracking {
   status: string;
 
   @Column({name: 'user_fk'})
-  @IsNotEmpty()
   userId: number;
 
   @Column({name: 'parcel_fk'})
