@@ -19,16 +19,15 @@ export const sendHttpRequest = <ResponseDataType>(url: string, method: HttpMetho
             responseType: 'json',
         } as AxiosRequestConfig;
 
-        try {
-            axios(httpRequestOptions)
-                .then((response) => {
-                    Logger.debug(`sendHttpRequest:: response.data: ${response.data}`);
-                    resolve(response.data);
-                }).catch((error) => {
-                    reject(error);
-                });
-        } catch (e) {
-            Logger.error('sendHttpRequest:: error: ', e);
-        }
+        Logger.debug(`[http-requester] [sendHttpRequest] ${method.toUpperCase()}: ${url}, headers: ${JSON.stringify(headers)}, data: ${JSON.stringify(data)}`);
+
+        axios(httpRequestOptions)
+            .then((response) => {
+                Logger.debug(`sendHttpRequest:: response.data: ${JSON.stringify(response.data)}`);
+                resolve(response.data);
+            }).catch((error) => {
+                reject(error);
+            });
+
     });
 };

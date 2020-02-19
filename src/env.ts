@@ -1,3 +1,5 @@
+const ONE_HOUR = 3600;
+
 export const environment = {
     VERSION: 'v1',
     SERVER: {
@@ -16,6 +18,8 @@ export const environment = {
         PUSH_MOBILE: 'https://fcm.googleapis.com/fcm/send',
     },
     FIREBASE_API_KEY: 'AIzaSyA279IQxpFTysJAwr8rz0_KfgopeZDSjQY',
-    JWT_SECRET: process.env.JWT_SECRET || 'jwtsecret',
+    JWT_TOKEN_SECRET: process.env.JWT_TOKEN_SECRET || 'jwtSecret',
+    JWT_TOKEN_LIFE: process.env.JWT_TOKEN_LIFE || ONE_HOUR / 4,
+    REFRESH_TOKEN_LIFE: process.env.REFRESH_TOKEN_LIFE || ONE_HOUR * 24 * 365,
     SWAGGER_UP: true,
 };

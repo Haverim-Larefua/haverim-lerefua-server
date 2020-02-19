@@ -11,7 +11,7 @@ export class AdminStrategy extends PassportStrategy(Strategy, 'admin') {
     constructor(private readonly adminService: AdminsService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: environment.JWT_SECRET,
+            secretOrKey: environment.JWT_TOKEN_SECRET,
         });
     }
 

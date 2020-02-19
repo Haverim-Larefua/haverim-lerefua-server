@@ -16,9 +16,9 @@ import {AdminsService} from '../admins/admins.service';
     DatabaseModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: environment.JWT_SECRET,
+      secret: environment.JWT_TOKEN_SECRET,
       signOptions: {
-        expiresIn: 3600,
+        expiresIn: environment.JWT_TOKEN_LIFE,
       },
     }),
   ],

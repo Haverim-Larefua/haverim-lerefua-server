@@ -13,6 +13,7 @@ CREATE TABLE `users` (
   `username` varchar(30) DEFAULT NULL,
   `password` varchar(200) DEFAULT NULL,
   `salt` varchar(30) DEFAULT NULL,
+  `refresh_token` varchar(300) DEFAULT NULL,
   `active` boolean DEFAULT false,
   PRIMARY KEY (`id`),
   UNIQUE(username)

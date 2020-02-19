@@ -53,6 +53,9 @@ export class User {
   @Column()
   active: boolean;
 
+  @Column({ name: 'refresh_token' })
+  refreshToken: string;
+
   @OneToMany(type => Parcel, parcel => parcel.user)
   parcels: Parcel[];
 }

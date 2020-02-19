@@ -1,11 +1,9 @@
 import {Body, Controller, Logger, Post} from '@nestjs/common';
 import {ILoginRequest} from '../entity/login.model';
-import {AuthenticationService} from './authentication.service';
-import {User} from '../entity/user.entity';
-import {Admin} from '../entity/admin.entity';
+import {AuthenticationService, IAuthAdminResponse, IAuthUserResponse} from './authentication.service';
 
-export interface IToken {
-  token: string;
+export interface IRefreshToken {
+  refreshToken: string;
 }
 
 @Controller('auth')
@@ -13,15 +11,21 @@ export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
   @Post('user')
-  loginUser(@Body() login: ILoginRequest): Promise<{ user: User, token: string }> {
+  loginUser(@Body() login: ILoginRequest): Promise<IAuthUserResponse> {
     Logger.log(`[AuthenticationController] loginUser() username: ${login.username}, password: '*****'`);
     return this.authenticationService.loginUser(login.username, login.password);
   }
 
   @Post('admin')
-  loginAdmin(@Body() login: ILoginRequest): Promise<{ admin: Admin, token: string }> {
+  loginAdmin(@Body() login: ILoginRequest): Promise<IAuthAdminResponse> {
     Logger.log(`[AuthenticationController] loginAdmin() username: ${login.username}, password: '*****'`);
     return this.authenticationService.loginAdmin(login.username, login.password);
+  }
+
+  @Post('token')
+  refreshToken(@Body() refreshTokenObject: IRefreshToken): Promise<IAuthUserResponse> {
+    Logger.log(`[AuthenticationController] refreshToken() refreshToken: ${JSON.stringify(refreshTokenObject)}`);
+    return this.authenticationService.refreshToken(refreshTokenObject.refreshToken);
   }
 
 }

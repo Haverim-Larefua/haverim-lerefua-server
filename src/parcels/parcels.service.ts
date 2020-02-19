@@ -11,14 +11,15 @@ import { Parcel } from '../entity/parcel.entity';
 import { dbConnection } from './../db/database.providers';
 import { ParcelStatus } from '../entity/status.model';
 import { ParcelTracking } from '../entity/parcel.tracking.entity';
+import {PushToken} from '../entity/push-token.entity';
+import {IPushNotificationConfiguration, PushNotificationConfigurationType, sendPushMessage} from '../networking/push';
 
 @Injectable()
 export class ParcelsService {
   constructor(
-    @Inject('PARCEL_REPOSITORY')
-    private readonly parcelRepository: Repository<Parcel>,
-    @Inject('PARCEL_TRACKING_REPOSITORY')
-    private readonly parcelTrackingRepository: Repository<ParcelTracking>,
+    @Inject('PARCEL_REPOSITORY') private readonly parcelRepository: Repository<Parcel>,
+    @Inject('PARCEL_TRACKING_REPOSITORY') private readonly parcelTrackingRepository: Repository<ParcelTracking>,
+    @Inject('PUSH_TOKEN_REPOSITORY') private readonly pushTokenRepository: Repository<PushToken>,
   ) {}
 
   /**
@@ -137,6 +138,7 @@ export class ParcelsService {
    */
   async assignParcelToUser(userId: number, parcelId: number): Promise<Parcel> {
     Logger.log(`[ParcelsService] parcelId: ${parcelId}`);
+    const token: PushToken = await this.pushTokenRepository.findOne({ userId });
     const parcel: Parcel = await this.getParcelById(parcelId);
     if (!parcel) {
       throw new InternalServerErrorException(
@@ -162,6 +164,23 @@ export class ParcelsService {
         userId,
       };
       await this.addParcelTracking(parcelTracking);
+
+      const message: IPushNotificationConfiguration = {
+        packageId: parcelId,
+        type: PushNotificationConfigurationType.NEW_PACKAGE,
+        notification: {
+          body: 'שוייכה אליך חבילה חדשה',
+        },
+        pushTokens: [token.token],
+      };
+      sendPushMessage(message)
+          .then((res) => {
+            Logger.debug(`Push notification send to user: ${userId}`);
+          }).catch((err) => {
+            Logger.error(`Error sending push notification to user: ${userId}`, err);
+            reject(err);
+          });
+
       resolve(parcel);
     });
   }
@@ -200,14 +219,8 @@ export class ParcelsService {
     return this.getParcelById(parcelId);
   }
 
-  updateParcelsStatus(
-    userId: number,
-    status: ParcelStatus,
-    parcelsIds: number[],
-  ): Promise<number[]> {
-    Logger.log(
-      `[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`,
-    );
+  updateParcelsStatus(userId: number, status: ParcelStatus, parcelsIds: number[]): Promise<number[]> {
+    Logger.log(`[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`);
     return new Promise<number[]>((resolve, reject) => {
       parcelsIds.forEach(async (id: number) => {
         await dbConnection
@@ -230,11 +243,9 @@ export class ParcelsService {
     });
   }
 
-  addParcelTracking = (
-    parcelTracking: Partial<ParcelTracking>,
-  ): Promise<ParcelTracking> => {
+  addParcelTracking = (parcelTracking: Partial<ParcelTracking>): Promise<ParcelTracking> => {
     return this.parcelTrackingRepository.save(parcelTracking);
-  };
+  }
 
   /**s
    * Update parcel by id

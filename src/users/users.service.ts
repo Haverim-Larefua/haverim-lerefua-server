@@ -131,7 +131,23 @@ export class UsersService {
     if (dbPass !== user.password) {
       throw new UnauthorizedException();
     }
+    delete user.password;
+    delete user.salt;
+    delete user.refreshToken;
     Logger.debug(`[UsersService] validateUser() user: ${JSON.stringify(user)}`);
+    return user;
+  }
+
+  async getUserByRefreshToken(refreshToken: string): Promise<User> {
+    Logger.log(`[UsersService] getUserByRefreshToken(${refreshToken})`);
+    const user =  await this.userRepository.findOne({
+      select: ['id', 'username', 'firstName', 'lastName', 'password', 'salt', 'active'],
+      where: [ { refreshToken, active: true } ],
+    });
+    if (!user || Object.keys(user).length === 0) {
+      Logger.error(`[UsersService] getUserByRefreshToken() error getting user by refreshToken: ${refreshToken}`);
+      throw new UnauthorizedException();
+    }
     return user;
   }
 
