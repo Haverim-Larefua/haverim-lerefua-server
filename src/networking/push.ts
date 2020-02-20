@@ -4,6 +4,7 @@ import {Logger} from '@nestjs/common';
 
 export enum PushNotificationConfigurationType {
     NEW_PACKAGE = 'newPackage',
+    MESSAGE = 'message'
 }
 
 export interface IPushNotificationConfiguration {
