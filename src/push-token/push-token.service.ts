@@ -1,6 +1,7 @@
 import {Injectable, Inject, Logger} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import {PushToken} from '../entity/push-token.entity';
+import { IPushNotificationConfiguration, PushNotificationConfigurationType, sendPushMessage } from '../networking/push';
 
 @Injectable()
 export class PushTokenService {
@@ -31,6 +32,31 @@ export class PushTokenService {
         token: pushToken,
       } as PushToken);
     }
+  }
+
+  async notifyUser(userId: number, title: string, subtitle: string, message: string): Promise<void> {
+    const token: PushToken = await this.pushTokenRepository.findOne({ userId });
+
+    const note: IPushNotificationConfiguration = {
+      packageId: 0,
+      type: PushNotificationConfigurationType.MESSAGE,
+      notification: {
+        title: title,
+        subtitle: subtitle,
+        body: message,
+      },
+      pushTokens: [token.token],
+    };
+
+    return new Promise<void>(async (resolve, reject) => {
+      sendPushMessage(note)
+        .then((res) => { Logger.debug(`Push notification send to user: ${userId}`); })
+        .catch((err) => {
+          Logger.error(`Error sending push notification to user: ${userId}`, err);
+          reject();
+        });
+      resolve();
+    });
   }
 
 }
