@@ -1,3 +1,5 @@
+DROP DATABASE `refua_delivery`;
+
 CREATE DATABASE  IF NOT EXISTS `refua_delivery`;
 USE `refua_delivery`;
 
