@@ -12,14 +12,7 @@ import { dbConnection } from './../db/database.providers';
 import { ParcelStatus } from '../entity/status.model';
 import { ParcelTracking } from '../entity/parcel.tracking.entity';
 import { PushToken } from '../entity/push-token.entity';
-import { I18nService } from 'nestjs-i18n';
-import { IPushNotificationConfiguration, PushNotificationConfigurationType, sendPushMessage } from '../networking/push';
-
-interface ISendNewAssignmentPushMessage {
-  packageId: number;
-  fullName: string;
-  fullAddress: string;
-}
+import {ISendNewAssignmentPushMessage, PushTokenService} from '../push-token/push-token.service';
 
 @Injectable()
 export class ParcelsService {
@@ -27,7 +20,7 @@ export class ParcelsService {
     @Inject('PARCEL_REPOSITORY') private readonly parcelRepository: Repository<Parcel>,
     @Inject('PARCEL_TRACKING_REPOSITORY') private readonly parcelTrackingRepository: Repository<ParcelTracking>,
     @Inject('PUSH_TOKEN_REPOSITORY') private readonly pushTokenRepository: Repository<PushToken>,
-    private readonly i18n: I18nService,
+    private readonly pushTokenService: PushTokenService,
   ) {}
 
   /**
@@ -187,7 +180,7 @@ export class ParcelsService {
 
       const pushToken: PushToken = await this.pushTokenRepository.findOne({ userId });
 
-      this.sendNewAssignmentPushMessage(pushToken.token, pushMessages)
+      this.pushTokenService.sendNewAssignmentPushMessage(pushToken.token, pushMessages)
           .then((res) => {
             Logger.debug(`Push notification send to user: ${userId}`);
           }).catch((err) => {
@@ -197,32 +190,6 @@ export class ParcelsService {
 
       resolve(responseParcels);
     });
-  }
-
-  sendNewAssignmentPushMessage = (pushToken: string, parcels: ISendNewAssignmentPushMessage[]): Promise<any> => {
-    let body = '';
-    if (parcels.length === 1) {
-      body = this.i18n.translate('push.PARCEL_ASSIGNMENT.BODY_ONE_PARCEL', { args: { address: parcels[0].fullAddress, fullName: parcels[0].fullName } });
-    } else {
-      const unique = [...new Set(parcels.map(parcel => parcel.fullAddress))];
-      if (unique.length === 1) {
-        body = this.i18n.translate('push.PARCEL_ASSIGNMENT.BODY_MULTIPLE_PARCELS_ONE_ADDRESS', { args: { address: parcels[0].fullAddress, fullName: parcels[0].fullName } });
-      } else {
-        body = this.i18n.translate('push.PARCEL_ASSIGNMENT.BODY_MULTIPLE_PARCELS_MULTIPLE_ADDRESS', { args: { addressCount: unique.length } });
-      }
-    }
-
-    const message: IPushNotificationConfiguration = {
-      packageIds: parcels.map(parcel => parcel.packageId),
-      type: PushNotificationConfigurationType.NEW_PACKAGE,
-      notification: {
-        title: this.i18n.translate('push.PARCEL_ASSIGNMENT.TITLE'),
-        subtitle: parcels.length > 1 ? this.i18n.translate('push.PARCEL_ASSIGNMENT.PARCELS_ASSIGN', { args: { parcels: parcels.length } }) : this.i18n.translate('push.PARCEL_ASSIGNMENT.PARCEL_ASSIGN'),
-        body,
-      },
-      pushTokens: [pushToken],
-    };
-    return sendPushMessage(message);
   }
 
   /**
