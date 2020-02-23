@@ -2,6 +2,7 @@ import {Injectable, Inject, Logger} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import {PushToken} from '../entity/push-token.entity';
 import { IPushNotificationConfiguration, PushNotificationConfigurationType, sendPushMessage } from '../networking/push';
+import { rejects } from 'assert';
 
 @Injectable()
 export class PushTokenService {
