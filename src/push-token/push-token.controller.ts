@@ -23,6 +23,7 @@ export class PushTokenController {
   notifyUser(
     @Param('userId') userId: number,
     @Body() body:{title: string, subtitle: string, message: string}) : Promise<void> {
+      Logger.log(`[PushTokenController] notifyUser(${userId}, ${JSON.stringify(body)})`);
       return this.pushTokenService.notifyUser(userId, body.title, body.subtitle, body.message);
   }
 
