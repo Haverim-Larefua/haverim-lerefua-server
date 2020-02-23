@@ -20,6 +20,6 @@ export const environment = {
     FIREBASE_API_KEY: 'AIzaSyA279IQxpFTysJAwr8rz0_KfgopeZDSjQY',
     JWT_TOKEN_SECRET: process.env.JWT_TOKEN_SECRET || 'jwtSecret',
     JWT_TOKEN_LIFE: process.env.JWT_TOKEN_LIFE || ONE_HOUR / 4,
-    REFRESH_TOKEN_LIFE: process.env.REFRESH_TOKEN_LIFE || ONE_HOUR * 24 * 365,
+    REFRESH_TOKEN_LIFE: process.env.REFRESH_TOKEN_LIFE || ONE_HOUR * 24 * 30,
     SWAGGER_UP: true,
 };

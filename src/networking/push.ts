@@ -1,6 +1,5 @@
 import {environment} from '../env';
 import {HttpMethod, sendHttpRequest} from './http-requestor';
-import {Logger} from '@nestjs/common';
 
 export enum PushNotificationConfigurationType {
     NEW_PACKAGE = 'newPackage',
@@ -9,10 +8,10 @@ export enum PushNotificationConfigurationType {
 export interface IPushNotificationConfiguration {
     pushTokens: string[];
     type: PushNotificationConfigurationType;
-    packageId: number;
+    packageIds: number[];
     notification: {
-        title?: string,
-        subtitle?: string,
+        title: string,
+        subtitle: string,
         body: string,
     };
 }
@@ -23,16 +22,16 @@ export const sendPushMessage = (config: IPushNotificationConfiguration): Promise
     const data = {
         content_available: true,
         notification: {
-            title: config.notification.title || 'חברים לרפואה',
-            subtitle: config.notification.subtitle || 'שוייכה אליך חבילה חדשה',
-            body: config.notification.body, // ' חבילה עבור ישראל ישראלי לכתובת: איירפורט סיטי ',
+            title: config.notification.title,
+            subtitle: config.notification.subtitle,
+            body: config.notification.body,
             sound: 'default',
         },
         registration_ids: config.pushTokens,
         priority: 'high',
         data: {
             notificationType: config.type,
-            packageId: config.packageId,
+            packageIds: config.packageIds,
         },
     };
     return sendHttpRequest(url, HttpMethod.POST, headers, data);

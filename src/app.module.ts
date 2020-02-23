@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {Logger, Module} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,11 +9,21 @@ import {environment} from './env';
 import {join} from 'path';
 import {PushTokenModule} from './push-token/push-token.module';
 import {AdminsModule} from './admins/admins.module';
+import * as path from 'path';
+import { I18nModule } from 'nestjs-i18n';
+
+Logger.debug(`aaaa: ${path.join(__dirname, '/i18n')}`);
 
 @Module({
   imports: [
     UsersModule,
     AdminsModule,
+    I18nModule.forRoot({
+      path: path.join(__dirname, '/assets/i18n'),
+      filePattern: '*.json',
+      fallbackLanguage: 'he',
+      saveMissing: false,
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: environment.DB.HOST,

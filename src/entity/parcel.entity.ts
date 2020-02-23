@@ -39,7 +39,7 @@ export class Parcel {
   @Column() // TODO: currentStatus [delivered, sdfdsf]
   @IsNotEmpty() // TODO: in create parcel check if exits and if not set default
   @Length(2, 30)
-  @IsEnum(['ready', 'delivered', 'distribution', 'exception'])
+  @IsEnum(['ready', 'assigned', 'delivered', 'distribution', 'exception'])
   parcelTrackingStatus: string;
 
   @Column()

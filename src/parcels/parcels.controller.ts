@@ -60,12 +60,20 @@ export class ParcelsController {
     return this.parcelsService.createParcel(parcel);
   }
 
-  @Put(':parcelId/assign/:userId')
-  assignParcelToUser(
+  // @Put(':parcelId/assign/:userId')
+  // assignParcelToUser(
+  //     @Param('userId') userId: number,
+  //     @Param('parcelId') parcelId: number): Promise<Parcel> {
+  //   Logger.log(`[ParcelsController] assignParcelToUser(${userId}, ${parcelId})`);
+  //   return this.parcelsService.assignParcelToUser(userId, parcelId);
+  // }
+
+  @Put('assign/:userId')
+  assignParcelsToUser(
       @Param('userId') userId: number,
-      @Param('parcelId') parcelId: number): Promise<Parcel> {
-    Logger.log(`[ParcelsController] assignParcelToUser(${userId}, ${parcelId})`);
-    return this.parcelsService.assignParcelToUser(userId, parcelId);
+      @Body() parcelIds: number[]): Promise<Parcel[]> {
+    Logger.log(`[ParcelsController] assignParcelsToUser(${userId}, ${parcelIds})`);
+    return this.parcelsService.assignParcelsToUser(userId, parcelIds);
   }
 
   @Put(':parcelId/signature/:userId')
