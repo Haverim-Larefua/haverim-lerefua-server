@@ -3,6 +3,7 @@ import {HttpMethod, sendHttpRequest} from './http-requestor';
 
 export enum PushNotificationConfigurationType {
     NEW_PACKAGE = 'newPackage',
+    MESSAGE = 'message'
 }
 
 export interface IPushNotificationConfiguration {

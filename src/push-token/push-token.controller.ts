@@ -19,4 +19,12 @@ export class PushTokenController {
     return this.pushTokenService.updateAddPushToken(userId, body.token);
   }
 
+  @Put('push/:userId')
+  notifyUser(
+    @Param('userId') userId: number,
+    @Body() body:{title: string, subtitle: string, message: string}) : Promise<void> {
+      Logger.log(`[PushTokenController] notifyUser(${userId}, ${JSON.stringify(body)})`);
+      return this.pushTokenService.notifyUser(userId, body.title, body.subtitle, body.message);
+  }
+
 }

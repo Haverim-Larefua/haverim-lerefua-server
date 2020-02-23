@@ -1,4 +1,4 @@
-import {Injectable, Inject, Logger, UnauthorizedException} from '@nestjs/common';
+import {Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorException} from '@nestjs/common';
 import { User } from '../entity/user.entity';
 import {Repository, Like} from 'typeorm';
 import {IPassword, saltHashPassword, sha512} from '../utils/crypto';
@@ -89,11 +89,22 @@ export class UsersService {
    */
   async updateUser(id: number, user: User): Promise<void> {
     Logger.log(`[UsersService] updateUser(${id}, ${JSON.stringify(user)})`);
+    const existingUser = await this.getUserById(id);
+    if (!existingUser) {
+      throw new InternalServerErrorException(
+        `User ${id} was not found`,
+      );
+    }
     if (user.password) {
       const pass: IPassword = saltHashPassword(user.password);
       user.password = pass.hash;
       user.salt = pass.salt;
     }
+    if (!user.username) {
+      user.username = existingUser.username;
+    }
+    delete user.refreshToken;
+
     await this.userRepository.update(id, user);
   }
 
