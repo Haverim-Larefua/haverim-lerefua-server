@@ -102,7 +102,7 @@ Remove the old container<br />
 ###### `docker rm -f ffh_server`
 
 Create a container from the image.<br />
-###### `docker create --name ffh_server -p 3001:3001 ffh_server:<version> - current 0.1.0`
+###### `docker create --name ffh_server -p 3001:3001 ffh_server:<version> - current 1.0.0`
 
 Start the container.<br />
 ###### `docker start ffh_server`
