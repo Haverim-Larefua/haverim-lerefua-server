@@ -77,3 +77,33 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
   Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+  
+
+
+# Build - Digital Ocean
+Log in to the machine<br />
+###### `ssh root@165.227.223.247`
+
+
+Switch to the applicative user<br />
+###### `su - ffh_user`
+
+
+Go to the portal git workspace<br />
+###### `cd /home/ffh_user/dev/git_ws/ffh/server`
+
+Pull latest changes from git (Branch=master)<br />
+###### `git pull`
+
+Build the docker image<br />
+###### `docker build . -t ffh_server`
+
+Remove the old container<br />
+###### `docker rm -f ffh_server`
+
+Create a container from the image.<br />
+###### `docker create --name ffh_server -p 3001:3001 ffh_server:<version> - current 1.0.0`
+
+Start the container.<br />
+###### `docker start ffh_server`
+
