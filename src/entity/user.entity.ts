@@ -37,14 +37,14 @@ export class User {
   @Column()
   notes: string;
 
-  @Column({ select: false })
+  @Column({ select: true })
   @Index({ unique: true })
   @IsNotEmpty()
   username: string;
 
   @IsNotEmpty()
   @Length(6)
-  @Column({ select: false })
+  @Column({ select: true })
   password: string;
 
   @Column({ select: false })
