@@ -10,12 +10,12 @@ export class User {
 
   @Column({ name: 'first_name' })
   @IsNotEmpty()
-  @Length(3, 20)
+  @Length(2, 20)
   firstName: string;
 
   @Column({ name: 'last_name' })
   @IsNotEmpty()
-  @Length(3, 30)
+  @Length(2, 30)
   lastName: string;
 
   @Column({ name: 'delivery_area' })
