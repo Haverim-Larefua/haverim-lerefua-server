@@ -4,7 +4,7 @@
     "PARCEL_ASSIGN": "שוייכה אליך חבילה חדשה",
     "PARCELS_ASSIGN": "שוייכו אליך {parcels} חבילות חדשות",
     "BODY_ONE_PARCEL": "חבילה עבור {fullName} לכתובת: {address}",
-    "BODY_MULTIPLE_PARCELS_ONE_ADDRESS￿￿￿": "חבילות עבור {fullName} לכתובת: {address}",
-    "BODY_MULTIPLE_PARCELS_MULTIPLE_ADDRESS￿￿￿": "חבילות עבור {addressCount} אנשים שונים"
+    "BODY_MULTIPLE_PARCELS_ONE_ADDRESS": "חבילות עבור {fullName} לכתובת: {address}",
+    "BODY_MULTIPLE_PARCELS_MULTIPLE_ADDRESS": "חבילות עבור {addressCount} אנשים שונים"
   }
 }
