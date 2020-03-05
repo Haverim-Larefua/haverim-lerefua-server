@@ -12,14 +12,15 @@ import {AdminsModule} from './admins/admins.module';
 import * as path from 'path';
 import { I18nModule } from 'nestjs-i18n';
 
-Logger.debug(`aaaa: ${path.join(__dirname, '/i18n')}`);
+Logger.debug(`aaaa: ${path.join(__dirname, '/assets/i18n')}`);
+Logger.debug(`bbbb: ${path.dirname(require.main.filename) + '/assets/i18n'}`);
 
 @Module({
   imports: [
     UsersModule,
     AdminsModule,
     I18nModule.forRoot({
-      path: path.join(__dirname, '/assets/i18n'),
+      path: '/opt/app/hl/dist/assets/i18n', // path.dirname(require.main.filename) + '/assets/i18n', // path.join(__dirname, '/assets/i18n'),
       filePattern: '*.json',
       fallbackLanguage: 'he',
       saveMissing: false,
