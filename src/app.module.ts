@@ -20,7 +20,7 @@ Logger.debug(`bbbb: ${path.dirname(require.main.filename) + '/assets/i18n'}`);
     UsersModule,
     AdminsModule,
     I18nModule.forRoot({
-      path: '/opt/app/hl/dist/assets/i18n', // path.dirname(require.main.filename) + '/assets/i18n', // path.join(__dirname, '/assets/i18n'),
+      path: '/opt/app/hl/src/assets/i18n', // path.dirname(require.main.filename) + '/assets/i18n', // path.join(__dirname, '/assets/i18n'),
       filePattern: '*.json',
       fallbackLanguage: 'he',
       saveMissing: false,
