@@ -3,8 +3,7 @@ FROM node AS node_package
 RUN ls -ltr
 RUN mkdir -p /opt/app/hl
 WORKDIR /opt/app/hl
-COPY  package* ./
-RUN npm install
+COPY  . .
 
 # Stage #2 - Copy data and run
 FROM node:alpine
@@ -13,7 +12,10 @@ RUN apk add bash
 RUN mkdir -p /opt/app/hl/
 WORKDIR /opt/app/hl
 COPY . .
-COPY --from=0 /opt/app/hl/node_modules ./node_modules
+RUN npm install
+RUN npm run build
+
+# COPY --from=0 /opt/app/hl/node_modules ./node_modules
 RUN ls -ltr .
 EXPOSE 3000
 ENTRYPOINT ${APP_PATH}/scripts/startService.sh
