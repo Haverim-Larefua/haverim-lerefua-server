@@ -12,7 +12,7 @@
 //      +-----------------------------
 String dockerName    = "ffh_server"
 String gitRepoUrl    = "git@github.com:Haverim-Larefua/haverim-lerefua-server.git"
-def    buildServers  = ['Dev': '40.122.211.186', 'Prod': '40.83.20.23']
+def    buildServers  = ['Dev': 'master', 'Prod': 'HL-PROD']
 
 
 
@@ -33,6 +33,8 @@ String nodeName     = buildServers[prmTargetEnv]
 //      +-----------------------------
 //      |  Global variables.
 //      +-----------------------------
+String dockerVersion
+
 
 
 
@@ -68,7 +70,7 @@ node (nodeName) {
 			banner (env.STAGE_NAME)
 			
 			// Get the application version
-			String dockerVersion = sh returnStdout: true, script: """
+			dockerVersion = sh returnStdout: true, script: """
 				jq -r ".version" package.json
 			"""
 			
