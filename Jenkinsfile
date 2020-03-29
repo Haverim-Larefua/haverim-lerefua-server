@@ -91,7 +91,7 @@ node (nodeName) {
 				### Remove the old container, if exists.
 				containers=\$(docker ps -a | grep ${dockerName} | wc -l)
 				if [ \${containers} -eq 1 ]; then
-					docker rm -f \${dockerName}
+					docker rm -f ${dockerName}
 				fi
 				
 				
