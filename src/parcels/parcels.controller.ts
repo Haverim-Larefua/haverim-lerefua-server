@@ -107,9 +107,9 @@ export class ParcelsController {
     return this.parcelsService.updateParcel(id, parcel);
   }
 
-  @Delete(':id')
-  deleteParcelbyId(@Param('id') id: number) {
+  @Delete(':id/:keep')
+  deleteParcelbyId(@Param('id') id: number, @Param('keep') keep: boolean) {
     Logger.log(`[ParcelsController] deleteParcelbyId()`);
-    return this.parcelsService.deleteParcel(id);
+    return this.parcelsService.deleteParcel(id, keep);
   }
 }

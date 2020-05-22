@@ -51,6 +51,9 @@ export class Parcel {
   @Column()
   signature: string;
 
+  @Column({ select: false })
+  deleted: boolean;
+
   @OneToOne(type => User)
   @JoinColumn({ name: 'currentUserId', referencedColumnName: 'id' })
   user: User;

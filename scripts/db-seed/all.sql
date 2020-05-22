@@ -47,6 +47,7 @@ CREATE TABLE `parcel` (
   `comments` varchar(100) DEFAULT NULL,
   `lastUpdateDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `signature` text DEFAULT NULL,
+  `deleted` boolean DEFAULT false,
   PRIMARY KEY (`id`),
   KEY `parcel_user_fk_idx` (`currentUserId`),
   CONSTRAINT `parcel_user_fk` FOREIGN KEY (`currentUserId`) REFERENCES `users` (`id`)
@@ -86,8 +87,8 @@ INSERT INTO `refua_delivery`.`users` (`first_name`, `last_name`, `delivery_area`
 INSERT INTO `refua_delivery`.`admins` (`first_name`, `last_name`, `phone`, `username`, `password`, `salt`) VALUES ('admin', 'admin', '052-12345678', 'admin', '415302ea979db020a079fa9dbe8c18597f30e13b2bbd60db274facd0d87a1c9aa6fe824fc0db687f81c29dd9991364ec3fa9eeb5189427f7c4c900a98a895bf0', 'd7a3aecb71c63a63');
 INSERT INTO `refua_delivery`.`admins` (`first_name`, `last_name`, `phone`, `username`, `password`, `salt`) VALUES ('root', 'root', '052-87654321', 'root', '415302ea979db020a079fa9dbe8c18597f30e13b2bbd60db274facd0d87a1c9aa6fe824fc0db687f81c29dd9991364ec3fa9eeb5189427f7c4c900a98a895bf0', 'd7a3aecb71c63a63');
 
-INSERT INTO `refua_delivery`.`parcel` (`identity`, `city`, `phone`, `customer_name`, `address`, `currentUserId`, `parcelTrackingStatus`, `comments`, `lastUpdateDate`, `signature`) VALUES ('055255655', 'תל אביב', '052-8556645', 'ישראל ישראלי', 'באר שבע, שטרן 20 א', 14, 'delivered', 'אין הערות', '2020-02-01 08:00:00', 'some base 64 signature');
-INSERT INTO `refua_delivery`.`parcel` (`identity`, `city`, `phone`, `customer_name`, `address`, `currentUserId`, `parcelTrackingStatus`, `comments`, `lastUpdateDate`, `signature`) VALUES ('022222222', 'באר שבע', '052-1234567', 'יהודית ירושלמי', 'באר שבע, שיכון ד', 14, 'ready', 'אין הערות', '2020-02-02 08:00:00', 'some base 64 signature');
+INSERT INTO `refua_delivery`.`parcel` (`identity`, `city`, `phone`, `customer_name`, `address`, `currentUserId`, `parcelTrackingStatus`, `comments`, `lastUpdateDate`, `signature`, `deleted`) VALUES ('055255655', 'תל אביב', '052-8556645', 'ישראל ישראלי', 'באר שבע, שטרן 20 א', 14, 'delivered', 'אין הערות', '2020-02-01 08:00:00', 'some base 64 signature', 0);
+INSERT INTO `refua_delivery`.`parcel` (`identity`, `city`, `phone`, `customer_name`, `address`, `currentUserId`, `parcelTrackingStatus`, `comments`, `lastUpdateDate`, `signature`, `deleted`) VALUES ('022222222', 'באר שבע', '052-1234567', 'יהודית ירושלמי', 'באר שבע, שיכון ד', 14, 'ready', 'אין הערות', '2020-02-02 08:00:00', 'some base 64 signature', 0);
 
 INSERT INTO `refua_delivery`.`parcel_tracking` (`status_date`, `status`, `user_fk`, `parcel_fk`) VALUES ('2020-02-01 08:00:00', 'delivered', 14, 6);
 

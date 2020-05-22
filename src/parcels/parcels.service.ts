@@ -12,14 +12,20 @@ import { dbConnection } from './../db/database.providers';
 import { ParcelStatus } from '../entity/status.model';
 import { ParcelTracking } from '../entity/parcel.tracking.entity';
 import { PushToken } from '../entity/push-token.entity';
-import {ISendNewAssignmentPushMessage, PushTokenService} from '../push-token/push-token.service';
+import {
+  ISendNewAssignmentPushMessage,
+  PushTokenService,
+} from '../push-token/push-token.service';
 
 @Injectable()
 export class ParcelsService {
   constructor(
-    @Inject('PARCEL_REPOSITORY') private readonly parcelRepository: Repository<Parcel>,
-    @Inject('PARCEL_TRACKING_REPOSITORY') private readonly parcelTrackingRepository: Repository<ParcelTracking>,
-    @Inject('PUSH_TOKEN_REPOSITORY') private readonly pushTokenRepository: Repository<PushToken>,
+    @Inject('PARCEL_REPOSITORY')
+    private readonly parcelRepository: Repository<Parcel>,
+    @Inject('PARCEL_TRACKING_REPOSITORY')
+    private readonly parcelTrackingRepository: Repository<ParcelTracking>,
+    @Inject('PUSH_TOKEN_REPOSITORY')
+    private readonly pushTokenRepository: Repository<PushToken>,
     private readonly pushTokenService: PushTokenService,
   ) {}
 
@@ -29,6 +35,7 @@ export class ParcelsService {
   getAllParcels(): Promise<Parcel[]> {
     return this.parcelRepository.find({
       relations: ['parcelTracking', 'user'],
+      where: [{ deleted: false }],
     });
   }
 
@@ -38,6 +45,7 @@ export class ParcelsService {
    */
   getParcelById(id: number): Promise<Parcel> {
     return this.parcelRepository.findOne(id, {
+      where: [{ deleted: false }],
       relations: ['parcelTracking', 'user'],
     });
   }
@@ -56,6 +64,7 @@ export class ParcelsService {
       .innerJoinAndSelect('parcel.user', 'user')
       .innerJoinAndSelect('parcel.parcelTracking', 'tracking')
       .where('user.id = :userId')
+      .where([{ deleted: false }])
       .andWhere('parcelTrackingStatus IN (:...statuses)')
       .setParameters({
         userId,
@@ -75,6 +84,7 @@ export class ParcelsService {
       .innerJoinAndSelect('parcel.user', 'user')
       .innerJoinAndSelect('parcel.parcelTracking', 'tracking')
       .where('user.id = :userId')
+      .where([{ deleted: false }])
       .setParameters({
         userId,
       })
@@ -88,9 +98,10 @@ export class ParcelsService {
    */
   getParcelByIdentity(identity: string): Promise<Parcel[]> {
     return this.parcelRepository.find({
-      where: {
+      where: [{
         identity,
-      },
+        deleted: false,
+      }],
       join: {
         alias: 'parcel',
         leftJoinAndSelect: {
@@ -137,24 +148,29 @@ export class ParcelsService {
    * @param userId
    * @param parcelId
    */
-  async assignParcelsToUser(userId: number, parcelIds: number[]): Promise<Parcel[]> {
+  async assignParcelsToUser(
+    userId: number,
+    parcelIds: number[],
+  ): Promise<Parcel[]> {
     Logger.log(`[ParcelsService] parcelIds: ${parcelIds}`);
     const dt = new Date();
     return new Promise<Parcel[]>(async (resolve, reject) => {
-
       const pushMessages: ISendNewAssignmentPushMessage[] = [];
       const responseParcels: Parcel[] = [];
 
       for (const parcelId of parcelIds) {
-
         // Update parcel table, set currentUserId, lastUpdateDate, parcelTrackingStatus
         await dbConnection
-            .getRepository(Parcel)
-            .createQueryBuilder()
-            .update(Parcel)
-            .set({ currentUserId: userId, lastUpdateDate: dt, parcelTrackingStatus: ParcelStatus.assigned })
-            .where('id = :parcelId', { parcelId })
-            .execute();
+          .getRepository(Parcel)
+          .createQueryBuilder()
+          .update(Parcel)
+          .set({
+            currentUserId: userId,
+            lastUpdateDate: dt,
+            parcelTrackingStatus: ParcelStatus.assigned,
+          })
+          .where('id = :parcelId', { parcelId })
+          .execute();
 
         // Insert new record for parcel_tracking table
         const parcelTracking: Partial<ParcelTracking> = {
@@ -178,15 +194,22 @@ export class ParcelsService {
         Logger.debug(`[ParcelsService] parcelIds: added parcel: ${parcelId}`);
       }
 
-      const pushToken: PushToken = await this.pushTokenRepository.findOne({ userId });
-
-      this.pushTokenService.sendNewAssignmentPushMessage(pushToken.token, pushMessages)
-          .then((res) => {
-            Logger.debug(`Push notification send to user: ${userId}`);
-          }).catch((err) => {
-        Logger.error(`Error sending push notification to user: ${userId}`, err);
-        reject(err);
+      const pushToken: PushToken = await this.pushTokenRepository.findOne({
+        userId,
       });
+
+      this.pushTokenService
+        .sendNewAssignmentPushMessage(pushToken.token, pushMessages)
+        .then(res => {
+          Logger.debug(`Push notification send to user: ${userId}`);
+        })
+        .catch(err => {
+          Logger.error(
+            `Error sending push notification to user: ${userId}`,
+            err,
+          );
+          reject(err);
+        });
 
       resolve(responseParcels);
     });
@@ -226,8 +249,14 @@ export class ParcelsService {
     return this.getParcelById(parcelId);
   }
 
-  updateParcelsStatus(userId: number, status: ParcelStatus, parcelsIds: number[]): Promise<number[]> {
-    Logger.log(`[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`);
+  updateParcelsStatus(
+    userId: number,
+    status: ParcelStatus,
+    parcelsIds: number[],
+  ): Promise<number[]> {
+    Logger.log(
+      `[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`,
+    );
     return new Promise<number[]>((resolve, reject) => {
       parcelsIds.forEach(async (id: number) => {
         await dbConnection
@@ -250,9 +279,11 @@ export class ParcelsService {
     });
   }
 
-  addParcelTracking = (parcelTracking: Partial<ParcelTracking>): Promise<ParcelTracking> => {
+  addParcelTracking = (
+    parcelTracking: Partial<ParcelTracking>,
+  ): Promise<ParcelTracking> => {
     return this.parcelTrackingRepository.save(parcelTracking);
-  }
+  };
 
   /**s
    * Update parcel by id
@@ -264,11 +295,30 @@ export class ParcelsService {
     return this.getParcelById(id);
   }
 
+  async markParcelAsDeleted(id: number): Promise<Parcel> {
+    //TODO   - unassign this parcel
+    const parcel: Parcel = await this.getParcelById(id);
+    if (!parcel) {
+      throw new InternalServerErrorException(`Parcel ${id} was not found`);
+    }
+    Logger.log(
+      `[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`,
+    );
+    parcel.deleted = true;
+    const result: Parcel = await this.parcelRepository.save(parcel);
+    return result;
+  }
+
   /**
    * Delete parcel by id
    * @param id
+   * @param keep if tru only mark this parcel as deleted but keep it in DB
    */
-  deleteParcel(id: number) {
-    return this.parcelRepository.delete(id);
+  deleteParcel(id: number, keep: boolean) {
+    if (keep) {
+      return this.markParcelAsDeleted(id);
+    } else {
+      return this.parcelRepository.delete(id);
+    }
   }
 }
