@@ -5,8 +5,11 @@ import {
   HttpException,
   HttpStatus,
   InternalServerErrorException,
+  ConflictException,
+  ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, DeleteResult } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 import { dbConnection } from './../db/database.providers';
 import { ParcelStatus } from '../entity/status.model';
@@ -98,10 +101,12 @@ export class ParcelsService {
    */
   getParcelByIdentity(identity: string): Promise<Parcel[]> {
     return this.parcelRepository.find({
-      where: [{
-        identity,
-        deleted: false,
-      }],
+      where: [
+        {
+          identity,
+          deleted: false,
+        },
+      ],
       join: {
         alias: 'parcel',
         leftJoinAndSelect: {
@@ -130,9 +135,8 @@ export class ParcelsService {
     Logger.debug(`status: ${status}`);
     if (!status) {
       Logger.error(`Parcel status not valid: ${parcel.parcelTrackingStatus}`);
-      throw new HttpException(
+      throw new BadRequestException(
         `Parcel status not valid: ${parcel.parcelTrackingStatus}`,
-        HttpStatus.BAD_REQUEST,
       );
     }
     const result: Parcel = await this.parcelRepository.save(parcel);
@@ -216,6 +220,40 @@ export class ParcelsService {
   }
 
   /**
+   * Unassign parcel from user, and return the new parcel object without the user.
+   * @param parcelId
+   */
+  async unassignParcel(parcelId: number): Promise<Parcel> {
+    Logger.log(`[ParcelsService] parcelId: ${parcelId}`);
+    const dt = new Date();
+
+    return new Promise<Parcel>(async (resolve, reject) => {
+      let responseParcel = await this.getParcelById(parcelId);
+
+      const parcelTrackingIds = responseParcel.parcelTracking.map(pt => pt.id);
+      await this.removeParcelTracking(parcelTrackingIds);
+
+      // Update parcel table, set currentUserId, lastUpdateDate, parcelTrackingStatus
+      await dbConnection
+        .getRepository(Parcel)
+        .createQueryBuilder()
+        .update(Parcel)
+        .set({
+          currentUserId: null,
+          lastUpdateDate: dt,
+          parcelTrackingStatus: ParcelStatus.ready,
+        })
+        .where('id = :parcelId', { parcelId })
+        .execute();
+
+      responseParcel = await this.getParcelById(parcelId);
+
+      Logger.debug(`[ParcelsService] parcelId: removed parcel: ${parcelId}`);
+      resolve(responseParcel);
+    });
+  }
+
+  /**
    * Adding signature to parcel, also update Parcel tracking status table with status delivered
    * @param userId
    * @param parcelId
@@ -285,6 +323,12 @@ export class ParcelsService {
     return this.parcelTrackingRepository.save(parcelTracking);
   };
 
+  removeParcelTracking = (
+    parcelsTrackingIds: number[],
+  ): Promise<DeleteResult> => {
+    return this.parcelTrackingRepository.delete(parcelsTrackingIds);
+  };
+
   /**s
    * Update parcel by id
    * @param id
@@ -295,12 +339,37 @@ export class ParcelsService {
     return this.getParcelById(id);
   }
 
-  async markParcelAsDeleted(id: number): Promise<Parcel> {
-    //TODO   - unassign this parcel
+  async canDeleteParcel(id): Promise<Parcel>{
     const parcel: Parcel = await this.getParcelById(id);
+
     if (!parcel) {
-      throw new InternalServerErrorException(`Parcel ${id} was not found`);
+      Logger.error(
+        `[ParcelsService] canDeleteParcel  Parcel ${id} was not found`,
+      );
+      throw new BadRequestException(`Parcel ${id} was not found`);
     }
+    if (
+      parcel.parcelTrackingStatus !== ParcelStatus.ready &&
+      parcel.parcelTrackingStatus !== ParcelStatus.assigned
+    ) {
+      Logger.error(
+        `[ParcelsService] canDeleteParcel  Parcel ${id} status not ready or assigned`,
+      );
+      throw new ForbiddenException(`Parcel ${id} status not ready or assigned`);
+    }
+
+    return parcel;
+  }
+
+  async markParcelAsDeleted(id: number): Promise<Parcel> {
+    const parcel: Parcel = await this.canDeleteParcel(id);
+
+    //unassign this parcel && change its status to ready
+    if (parcel.parcelTrackingStatus == ParcelStatus.assigned) {
+      await this.unassignParcel(id);
+    }
+
+    // mark parcel as deleted
     Logger.log(
       `[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`,
     );
@@ -309,16 +378,30 @@ export class ParcelsService {
     return result;
   }
 
+  async removeParcel(id: number) {
+    const parcel: Parcel = await this.canDeleteParcel(id);
+
+    //unassign this parcel && change its status to ready
+    if (parcel.parcelTrackingStatus == ParcelStatus.assigned) {
+      await this.unassignParcel(id);
+    }
+
+    // delete parcel
+    return await this.parcelRepository.delete(id);
+  }
+
   /**
    * Delete parcel by id
    * @param id
-   * @param keep if tru only mark this parcel as deleted but keep it in DB
+   * @param keep if true only mark this parcel as deleted but keep it in DB
    */
-  deleteParcel(id: number, keep: boolean) {
+  async deleteParcel(id: number, keep: boolean) {
     if (keep) {
-      return this.markParcelAsDeleted(id);
+      return await this.markParcelAsDeleted(id);
     } else {
-      return this.parcelRepository.delete(id);
+      return await this.removeParcel(id);
     }
   }
+
+  
 }
