@@ -176,14 +176,18 @@ export class ParcelsService {
           .where('id = :parcelId', { parcelId })
           .execute();
 
-        // Insert new record for parcel_tracking table
-        const parcelTracking: Partial<ParcelTracking> = {
-          statusDate: dt,
-          status: ParcelStatus.assigned,
-          parcelId,
-          userId,
-        };
-        await this.addParcelTracking(parcelTracking);
+        // Update parcel tracking record in parcel_tracking table
+        await dbConnection
+          .getRepository(ParcelTracking)
+          .createQueryBuilder()
+          .update(ParcelTracking)
+          .set({
+            userId: userId,
+            parcelId: parcelId,
+            status: ParcelStatus.assigned,
+          })
+          .where('parcelId = :parcelId', { parcelId })
+          .execute();
 
         const currentParcel = await this.getParcelById(parcelId);
 
@@ -230,9 +234,6 @@ export class ParcelsService {
     return new Promise<Parcel>(async (resolve, reject) => {
       let responseParcel = await this.getParcelById(parcelId);
 
-      const parcelTrackingIds = responseParcel.parcelTracking.map(pt => pt.id);
-      await this.removeParcelTracking(parcelTrackingIds);
-
       // Update parcel table, set currentUserId, lastUpdateDate, parcelTrackingStatus
       await dbConnection
         .getRepository(Parcel)
@@ -245,6 +246,9 @@ export class ParcelsService {
         })
         .where('id = :parcelId', { parcelId })
         .execute();
+
+      const parcelTrackingIds = responseParcel.parcelTracking.map(pt => pt.id);
+      await this.clearParcelTracking(parcelTrackingIds);
 
       responseParcel = await this.getParcelById(parcelId);
 
@@ -323,10 +327,22 @@ export class ParcelsService {
     return this.parcelTrackingRepository.save(parcelTracking);
   };
 
-  removeParcelTracking = (
-    parcelsTrackingIds: number[],
-  ): Promise<DeleteResult> => {
-    return this.parcelTrackingRepository.delete(parcelsTrackingIds);
+  clearParcelTracking = (parcelsTrackingIds: number[]): Promise<number[]> => {
+    return new Promise<number[]>(async (resolve, reject) => {
+      parcelsTrackingIds.forEach(async (id: number) => {
+        await dbConnection
+          .getRepository(ParcelTracking)
+          .createQueryBuilder()
+          .update(ParcelTracking)
+          .set({
+            userId: null,
+            status: ParcelStatus.ready,
+          })
+          .where('id = :id', { id })
+          .execute();
+      });
+      resolve(parcelsTrackingIds);
+    });
   };
 
   /**s
@@ -339,7 +355,7 @@ export class ParcelsService {
     return this.getParcelById(id);
   }
 
-  async canDeleteParcel(id): Promise<Parcel>{
+  async canDeleteParcel(id): Promise<Parcel> {
     const parcel: Parcel = await this.getParcelById(id);
 
     if (!parcel) {
@@ -362,17 +378,15 @@ export class ParcelsService {
   }
 
   async markParcelAsDeleted(id: number): Promise<Parcel> {
-    const parcel: Parcel = await this.canDeleteParcel(id);
+    let parcel: Parcel = await this.canDeleteParcel(id);
 
     //unassign this parcel && change its status to ready
     if (parcel.parcelTrackingStatus == ParcelStatus.assigned) {
-      await this.unassignParcel(id);
+      parcel = await this.unassignParcel(id);
     }
 
     // mark parcel as deleted
-    Logger.log(
-      `[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`,
-    );
+    Logger.log(`[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`, );
     parcel.deleted = true;
     const result: Parcel = await this.parcelRepository.save(parcel);
     return result;
@@ -402,6 +416,4 @@ export class ParcelsService {
       return await this.removeParcel(id);
     }
   }
-
-  
 }
