@@ -11,6 +11,7 @@ import {PushTokenModule} from './push-token/push-token.module';
 import {AdminsModule} from './admins/admins.module';
 import * as path from 'path';
 import { I18nModule } from 'nestjs-i18n';
+import { DownloadModule } from './download/download.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { I18nModule } from 'nestjs-i18n';
     ParcelsModule,
     AuthenticationModule,
     PushTokenModule,
+    DownloadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
