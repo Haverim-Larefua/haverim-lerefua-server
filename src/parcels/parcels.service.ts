@@ -5,21 +5,30 @@ import {
   HttpException,
   HttpStatus,
   InternalServerErrorException,
+  ConflictException,
+  ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, DeleteResult } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 import { dbConnection } from './../db/database.providers';
 import { ParcelStatus } from '../entity/status.model';
 import { ParcelTracking } from '../entity/parcel.tracking.entity';
 import { PushToken } from '../entity/push-token.entity';
-import {ISendNewAssignmentPushMessage, PushTokenService} from '../push-token/push-token.service';
+import {
+  ISendNewAssignmentPushMessage,
+  PushTokenService,
+} from '../push-token/push-token.service';
 
 @Injectable()
 export class ParcelsService {
   constructor(
-    @Inject('PARCEL_REPOSITORY') private readonly parcelRepository: Repository<Parcel>,
-    @Inject('PARCEL_TRACKING_REPOSITORY') private readonly parcelTrackingRepository: Repository<ParcelTracking>,
-    @Inject('PUSH_TOKEN_REPOSITORY') private readonly pushTokenRepository: Repository<PushToken>,
+    @Inject('PARCEL_REPOSITORY')
+    private readonly parcelRepository: Repository<Parcel>,
+    @Inject('PARCEL_TRACKING_REPOSITORY')
+    private readonly parcelTrackingRepository: Repository<ParcelTracking>,
+    @Inject('PUSH_TOKEN_REPOSITORY')
+    private readonly pushTokenRepository: Repository<PushToken>,
     private readonly pushTokenService: PushTokenService,
   ) {}
 
@@ -29,6 +38,7 @@ export class ParcelsService {
   getAllParcels(): Promise<Parcel[]> {
     return this.parcelRepository.find({
       relations: ['parcelTracking', 'user'],
+      where: [{ deleted: false }],
     });
   }
 
@@ -38,6 +48,7 @@ export class ParcelsService {
    */
   getParcelById(id: number): Promise<Parcel> {
     return this.parcelRepository.findOne(id, {
+      where: [{ deleted: false }],
       relations: ['parcelTracking', 'user'],
     });
   }
@@ -56,6 +67,7 @@ export class ParcelsService {
       .innerJoinAndSelect('parcel.user', 'user')
       .innerJoinAndSelect('parcel.parcelTracking', 'tracking')
       .where('user.id = :userId')
+      .where([{ deleted: false }])
       .andWhere('parcelTrackingStatus IN (:...statuses)')
       .setParameters({
         userId,
@@ -75,6 +87,7 @@ export class ParcelsService {
       .innerJoinAndSelect('parcel.user', 'user')
       .innerJoinAndSelect('parcel.parcelTracking', 'tracking')
       .where('user.id = :userId')
+      .where([{ deleted: false }])
       .setParameters({
         userId,
       })
@@ -88,9 +101,12 @@ export class ParcelsService {
    */
   getParcelByIdentity(identity: string): Promise<Parcel[]> {
     return this.parcelRepository.find({
-      where: {
-        identity,
-      },
+      where: [
+        {
+          identity,
+          deleted: false,
+        },
+      ],
       join: {
         alias: 'parcel',
         leftJoinAndSelect: {
@@ -119,9 +135,8 @@ export class ParcelsService {
     Logger.debug(`status: ${status}`);
     if (!status) {
       Logger.error(`Parcel status not valid: ${parcel.parcelTrackingStatus}`);
-      throw new HttpException(
+      throw new BadRequestException(
         `Parcel status not valid: ${parcel.parcelTrackingStatus}`,
-        HttpStatus.BAD_REQUEST,
       );
     }
     const result: Parcel = await this.parcelRepository.save(parcel);
@@ -137,33 +152,42 @@ export class ParcelsService {
    * @param userId
    * @param parcelId
    */
-  async assignParcelsToUser(userId: number, parcelIds: number[]): Promise<Parcel[]> {
+  async assignParcelsToUser(
+    userId: number,
+    parcelIds: number[],
+  ): Promise<Parcel[]> {
     Logger.log(`[ParcelsService] parcelIds: ${parcelIds}`);
     const dt = new Date();
     return new Promise<Parcel[]>(async (resolve, reject) => {
-
       const pushMessages: ISendNewAssignmentPushMessage[] = [];
       const responseParcels: Parcel[] = [];
 
       for (const parcelId of parcelIds) {
-
         // Update parcel table, set currentUserId, lastUpdateDate, parcelTrackingStatus
         await dbConnection
-            .getRepository(Parcel)
-            .createQueryBuilder()
-            .update(Parcel)
-            .set({ currentUserId: userId, lastUpdateDate: dt, parcelTrackingStatus: ParcelStatus.assigned })
-            .where('id = :parcelId', { parcelId })
-            .execute();
+          .getRepository(Parcel)
+          .createQueryBuilder()
+          .update(Parcel)
+          .set({
+            currentUserId: userId,
+            lastUpdateDate: dt,
+            parcelTrackingStatus: ParcelStatus.assigned,
+          })
+          .where('id = :parcelId', { parcelId })
+          .execute();
 
-        // Insert new record for parcel_tracking table
-        const parcelTracking: Partial<ParcelTracking> = {
-          statusDate: dt,
-          status: ParcelStatus.assigned,
-          parcelId,
-          userId,
-        };
-        await this.addParcelTracking(parcelTracking);
+        // Update parcel tracking record in parcel_tracking table
+        await dbConnection
+          .getRepository(ParcelTracking)
+          .createQueryBuilder()
+          .update(ParcelTracking)
+          .set({
+            userId: userId,
+            parcelId: parcelId,
+            status: ParcelStatus.assigned,
+          })
+          .where('parcelId = :parcelId', { parcelId })
+          .execute();
 
         const currentParcel = await this.getParcelById(parcelId);
 
@@ -178,17 +202,58 @@ export class ParcelsService {
         Logger.debug(`[ParcelsService] parcelIds: added parcel: ${parcelId}`);
       }
 
-      const pushToken: PushToken = await this.pushTokenRepository.findOne({ userId });
-
-      this.pushTokenService.sendNewAssignmentPushMessage(pushToken.token, pushMessages)
-          .then((res) => {
-            Logger.debug(`Push notification send to user: ${userId}`);
-          }).catch((err) => {
-        Logger.error(`Error sending push notification to user: ${userId}`, err);
-        reject(err);
+      const pushToken: PushToken = await this.pushTokenRepository.findOne({
+        userId,
       });
 
+      this.pushTokenService
+        .sendNewAssignmentPushMessage(pushToken.token, pushMessages)
+        .then(res => {
+          Logger.debug(`Push notification send to user: ${userId}`);
+        })
+        .catch(err => {
+          Logger.error(
+            `Error sending push notification to user: ${userId}`,
+            err,
+          );
+          reject(err);
+        });
+
       resolve(responseParcels);
+    });
+  }
+
+  /**
+   * Unassign parcel from user, and return the new parcel object without the user.
+   * @param parcelId
+   */
+  async unassignParcel(parcelId: number): Promise<Parcel> {
+    Logger.log(`[ParcelsService] parcelId: ${parcelId}`);
+    const dt = new Date();
+
+    return new Promise<Parcel>(async (resolve, reject) => {
+      let responseParcel = await this.getParcelById(parcelId);
+
+      // Update parcel table, set currentUserId, lastUpdateDate, parcelTrackingStatus
+      await dbConnection
+        .getRepository(Parcel)
+        .createQueryBuilder()
+        .update(Parcel)
+        .set({
+          currentUserId: null,
+          lastUpdateDate: dt,
+          parcelTrackingStatus: ParcelStatus.ready,
+        })
+        .where('id = :parcelId', { parcelId })
+        .execute();
+
+      const parcelTrackingIds = responseParcel.parcelTracking.map(pt => pt.id);
+      await this.clearParcelTracking(parcelTrackingIds);
+
+      responseParcel = await this.getParcelById(parcelId);
+
+      Logger.debug(`[ParcelsService] parcelId: removed parcel: ${parcelId}`);
+      resolve(responseParcel);
     });
   }
 
@@ -226,8 +291,14 @@ export class ParcelsService {
     return this.getParcelById(parcelId);
   }
 
-  updateParcelsStatus(userId: number, status: ParcelStatus, parcelsIds: number[]): Promise<number[]> {
-    Logger.log(`[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`);
+  updateParcelsStatus(
+    userId: number,
+    status: ParcelStatus,
+    parcelsIds: number[],
+  ): Promise<number[]> {
+    Logger.log(
+      `[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`,
+    );
     return new Promise<number[]>((resolve, reject) => {
       parcelsIds.forEach(async (id: number) => {
         await dbConnection
@@ -250,9 +321,29 @@ export class ParcelsService {
     });
   }
 
-  addParcelTracking = (parcelTracking: Partial<ParcelTracking>): Promise<ParcelTracking> => {
+  addParcelTracking = (
+    parcelTracking: Partial<ParcelTracking>,
+  ): Promise<ParcelTracking> => {
     return this.parcelTrackingRepository.save(parcelTracking);
-  }
+  };
+
+  clearParcelTracking = (parcelsTrackingIds: number[]): Promise<number[]> => {
+    return new Promise<number[]>(async (resolve, reject) => {
+      parcelsTrackingIds.forEach(async (id: number) => {
+        await dbConnection
+          .getRepository(ParcelTracking)
+          .createQueryBuilder()
+          .update(ParcelTracking)
+          .set({
+            userId: null,
+            status: ParcelStatus.ready,
+          })
+          .where('id = :id', { id })
+          .execute();
+      });
+      resolve(parcelsTrackingIds);
+    });
+  };
 
   /**s
    * Update parcel by id
@@ -264,11 +355,65 @@ export class ParcelsService {
     return this.getParcelById(id);
   }
 
+  async canDeleteParcel(id): Promise<Parcel> {
+    const parcel: Parcel = await this.getParcelById(id);
+
+    if (!parcel) {
+      Logger.error(
+        `[ParcelsService] canDeleteParcel  Parcel ${id} was not found`,
+      );
+      throw new BadRequestException(`Parcel ${id} was not found`);
+    }
+    if (
+      parcel.parcelTrackingStatus !== ParcelStatus.ready &&
+      parcel.parcelTrackingStatus !== ParcelStatus.assigned
+    ) {
+      Logger.error(
+        `[ParcelsService] canDeleteParcel  Parcel ${id} status not ready or assigned`,
+      );
+      throw new ForbiddenException(`Parcel ${id} status not ready or assigned`);
+    }
+
+    return parcel;
+  }
+
+  async markParcelAsDeleted(id: number): Promise<Parcel> {
+    let parcel: Parcel = await this.canDeleteParcel(id);
+
+    //unassign this parcel && change its status to ready
+    if (parcel.parcelTrackingStatus == ParcelStatus.assigned) {
+      parcel = await this.unassignParcel(id);
+    }
+
+    // mark parcel as deleted
+    Logger.log(`[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`, );
+    parcel.deleted = true;
+    const result: Parcel = await this.parcelRepository.save(parcel);
+    return result;
+  }
+
+  async removeParcel(id: number) {
+    const parcel: Parcel = await this.canDeleteParcel(id);
+
+    //unassign this parcel && change its status to ready
+    if (parcel.parcelTrackingStatus == ParcelStatus.assigned) {
+      await this.unassignParcel(id);
+    }
+
+    // delete parcel
+    return await this.parcelRepository.delete(id);
+  }
+
   /**
    * Delete parcel by id
    * @param id
+   * @param keep if true only mark this parcel as deleted but keep it in DB
    */
-  deleteParcel(id: number) {
-    return this.parcelRepository.delete(id);
+  async deleteParcel(id: number, keep: boolean) {
+    if (keep) {
+      return await this.markParcelAsDeleted(id);
+    } else {
+      return await this.removeParcel(id);
+    }
   }
 }
