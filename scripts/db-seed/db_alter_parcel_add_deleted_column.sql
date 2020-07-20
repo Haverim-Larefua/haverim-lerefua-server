@@ -1,0 +1,1 @@
+Alter table parcel ADD deleted boolean DEFAULT false;
