@@ -9,10 +9,6 @@ export class Parcel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  @IsNotEmpty()
-  identity: number;
-
   @Column()
   @IsNotEmpty()
   @Length(2, 50)
