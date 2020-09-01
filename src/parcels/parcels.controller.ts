@@ -1,5 +1,4 @@
-import {Controller, Get, Post, Put, Param, Body, Logger, Delete, Query, UseGuards, UsePipes} from '@nestjs/common';
-import { TrasformationPipeParcel } from './../pipes/transformation-parcels.pipe';
+import {Controller, Get, Post, Put, Param, Body, Logger, Delete, Query, UseGuards} from '@nestjs/common';
 import { ParcelsService } from './parcels.service';
 import { Parcel } from '../entity/parcel.entity';
 import {AuthGuard} from '@nestjs/passport';
@@ -56,7 +55,7 @@ export class ParcelsController {
   }
 
   @Post()
-  CreateParcel(@Body(TrasformationPipeParcel) parcel: Parcel) {
+  CreateParcel(@Body() parcel: Parcel) {
     Logger.log(`[ParcelsController] CreateParcel(${JSON.stringify(parcel)})`);
     return this.parcelsService.createParcel(parcel);
   }
@@ -103,7 +102,7 @@ export class ParcelsController {
   // }
 
   @Put(':id')
-  updateParcel(@Param('id') id: number, @Body(TrasformationPipeParcel) parcel: Parcel) {
+  updateParcel(@Param('id') id: number, @Body() parcel: Parcel) {
     Logger.log(`[ParcelsController] updateParcel()`);
     return this.parcelsService.updateParcel(id, parcel);
   }
