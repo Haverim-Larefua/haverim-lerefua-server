@@ -61,13 +61,14 @@ export class ParcelsService {
     userId: number,
     statuses: string[],
   ): Promise<Parcel[]> {
+    Logger.log(`[ParcelsService] getParcelsByUserIdSpecificStatuses(${userId}, ${statuses})`);
     return dbConnection
       .getRepository(Parcel)
       .createQueryBuilder('parcel')
       .innerJoinAndSelect('parcel.user', 'user')
       .innerJoinAndSelect('parcel.parcelTracking', 'tracking')
       .where('user.id = :userId')
-      .where([{ deleted: false }])
+      .andWhere('parcel.deleted = false')
       .andWhere('parcelTrackingStatus IN (:...statuses)')
       .setParameters({
         userId,
@@ -81,13 +82,14 @@ export class ParcelsService {
    * @param userId
    */
   getParcelsByUserId(userId: number): Promise<Parcel[]> {
+    Logger.log(`[ParcelsService] getParcelsByUserId(${userId})`);
     return dbConnection
       .getRepository(Parcel)
       .createQueryBuilder('parcel')
       .innerJoinAndSelect('parcel.user', 'user')
       .innerJoinAndSelect('parcel.parcelTracking', 'tracking')
       .where('user.id = :userId')
-      .where([{ deleted: false }])
+      .andWhere('parcel.deleted = false')
       .setParameters({
         userId,
       })
