@@ -1,3 +1,4 @@
+import { AdminStrategy } from './admin.strategy';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -23,7 +24,7 @@ import {AdminsService} from '../admins/admins.service';
     }),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, AppStrategy, ...userProviders, UsersService, ...adminProviders, AdminsService],
+  providers: [AuthenticationService, AppStrategy, ...userProviders, UsersService, ...adminProviders, AdminsService, AdminStrategy],
   exports: [PassportModule, AuthenticationService],
 })
 export class AuthenticationModule {}
