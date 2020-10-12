@@ -7,7 +7,9 @@
 
 2. Install MySql Workbench
    https://www.mysql.com/products/workbench/
-   Note: use username root and password root (can be changed later)
+   Notes: 
+   * use username root and password root (can be changed later)
+   * Authentication method - select Use Legacy Authentication Method
 
 3. Git clone the server project from:
    https://github.com/Haverim-Larefua/haverim-lerefua-server
