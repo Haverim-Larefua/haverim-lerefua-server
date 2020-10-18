@@ -55,7 +55,7 @@ CREATE TABLE `parcel` (
 DROP TABLE IF EXISTS `parcel_tracking`;
 CREATE TABLE `parcel_tracking` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `status_date` date DEFAULT NULL,
+  `status_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `status` varchar(30) DEFAULT NULL,
   `user_fk` int(11) DEFAULT NULL,
   `parcel_fk` int(11) DEFAULT NULL,
