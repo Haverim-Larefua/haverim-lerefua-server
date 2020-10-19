@@ -11,6 +11,7 @@ import {userProviders} from '../users/users.providers';
 import {DatabaseModule} from '../db/database.modules';
 import {adminProviders} from '../admins/admins.providers';
 import {AdminsService} from '../admins/admins.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -22,9 +23,10 @@ import {AdminsService} from '../admins/admins.service';
         expiresIn: environment.JWT_TOKEN_LIFE,
       },
     }),
+    UsersModule,
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, AppStrategy, ...userProviders, UsersService, ...adminProviders, AdminsService, AdminStrategy],
+  providers: [AuthenticationService, AppStrategy, ...adminProviders, AdminsService, AdminStrategy],
   exports: [PassportModule, AuthenticationService],
 })
 export class AuthenticationModule {}
