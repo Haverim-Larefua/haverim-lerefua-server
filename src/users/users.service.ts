@@ -2,13 +2,15 @@ import {Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorEx
 import { User } from '../entity/user.entity';
 import {Repository, Like} from 'typeorm';
 import {IPassword, saltHashPassword, sha512} from '../utils/crypto';
-import { ParcelStatus } from 'src/entity/status.model';
+import { ParcelsService } from '../parcels/parcels.service';
+import { ParcelStatus } from '../entity/status.model';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject('USER_REPOSITORY')
     private readonly userRepository: Repository<User>,
+    private readonly parcelsService: ParcelsService,
   ) {}
 
   /**
@@ -137,6 +139,14 @@ export class UsersService {
     user.active = false;
     await this.userRepository.update(id, user);
     // await this.userRepository.delete(id);
+
+    // Unassign parcels
+    const userParcels = await this.parcelsService.getParcelsByUserId(id);
+    const unassignParcelPromises = userParcels
+      .filter(parcel => parcel.parcelTrackingStatus === ParcelStatus.assigned) // Unassign assigned parcels only
+      .map(parcel => this.parcelsService.unassignParcel(parcel.id));
+
+    await Promise.all(unassignParcelPromises);
   }
 
   /**
