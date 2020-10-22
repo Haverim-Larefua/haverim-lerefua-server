@@ -1,4 +1,4 @@
-import {Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorException} from '@nestjs/common';
+import {Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorException, NotFoundException, BadRequestException} from '@nestjs/common';
 import { User } from '../entity/user.entity';
 import {Repository, Like} from 'typeorm';
 import {IPassword, saltHashPassword, sha512} from '../utils/crypto';
@@ -118,7 +118,23 @@ export class UsersService {
    */
   async deleteUser(id: number): Promise<void> {
     Logger.log(`[UsersService] deleteUser(${id})`);
+    const detailedUser: User = await this.getUserById(id);
+
+    if (!detailedUser) {
+      throw new NotFoundException();
+    }
+
+    if (detailedUser.parcels) {
+      if (detailedUser.parcels.find(parcel =>
+        parcel.parcelTrackingStatus === ParcelStatus.distribution)) {
+        throw new BadRequestException(
+          `User with id ${id} has parcels in distribution status assigned, and therefore can not be deleted`,
+        );
+      }
+    }
+
     const user: User = await this.userRepository.findOne({ id });
+
     user.active = false;
     await this.userRepository.update(id, user);
     // await this.userRepository.delete(id);
