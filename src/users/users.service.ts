@@ -116,14 +116,14 @@ export class UsersService {
    */
   async deleteUser(id: number): Promise<void> {
     Logger.log(`[UsersService] deleteUser(${id})`);
-    const user: User = await this.getUserById(id);
+    const detailedUser: User = await this.getUserById(id);
 
-    if (!user) {
+    if (!detailedUser) {
       throw new NotFoundException();
     }
 
-    if (user.parcels) {
-      if (user.parcels.find(parcel =>
+    if (detailedUser.parcels) {
+      if (detailedUser.parcels.find(parcel =>
         parcel.parcelTrackingStatus === ParcelStatus.distribution ||
         parcel.parcelTrackingStatus === ParcelStatus.exception)) {
         throw new BadRequestException(
@@ -131,6 +131,8 @@ export class UsersService {
         );
       }
     }
+
+    const user: User = await this.userRepository.findOne({ id });
 
     user.active = false;
     await this.userRepository.update(id, user);
