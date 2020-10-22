@@ -1,7 +1,8 @@
-import {Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorException} from '@nestjs/common';
+import {Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorException, NotFoundException, BadRequestException} from '@nestjs/common';
 import { User } from '../entity/user.entity';
 import {Repository, Like} from 'typeorm';
 import {IPassword, saltHashPassword, sha512} from '../utils/crypto';
+import { ParcelStatus } from 'src/entity/status.model';
 
 @Injectable()
 export class UsersService {
@@ -115,7 +116,22 @@ export class UsersService {
    */
   async deleteUser(id: number): Promise<void> {
     Logger.log(`[UsersService] deleteUser(${id})`);
-    const user: User = await this.userRepository.findOne({ id });
+    const user: User = await this.getUserById(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    if (user.parcels) {
+      if (user.parcels.find(parcel =>
+        parcel.parcelTrackingStatus === ParcelStatus.distribution ||
+        parcel.parcelTrackingStatus === ParcelStatus.exception)) {
+        throw new BadRequestException(
+          `User with id ${id} has parcels in distribution or exception status assigned, and therefore can not be deleted`,
+        );
+      }
+    }
+
     user.active = false;
     await this.userRepository.update(id, user);
     // await this.userRepository.delete(id);
