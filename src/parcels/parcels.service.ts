@@ -249,12 +249,20 @@ export class ParcelsService {
         .where('id = :parcelId', { parcelId })
         .execute();
 
-      const parcelTrackingIds = responseParcel.parcelTracking.map(pt => pt.id);
-      await this.clearParcelTracking(parcelTrackingIds);
+      // Add the relevant parcel tracking record
+      const parcelTracking: Partial<ParcelTracking> = {
+        statusDate: new Date(),
+        status: ParcelStatus.ready,
+        parcelId,
+        userId: null,
+        comments: 'השליח הוסר מהחבילה',
+      };
+
+      await this.addParcelTracking(parcelTracking);
 
       responseParcel = await this.getParcelById(parcelId);
 
-      Logger.debug(`[ParcelsService] parcelId: removed parcel: ${parcelId}`);
+      Logger.debug(`[ParcelsService] parcelId: unassigned parcel: ${parcelId}`);
       resolve(responseParcel);
     });
   }
@@ -327,24 +335,6 @@ export class ParcelsService {
     parcelTracking: Partial<ParcelTracking>,
   ): Promise<ParcelTracking> => {
     return this.parcelTrackingRepository.save(parcelTracking);
-  };
-
-  clearParcelTracking = (parcelsTrackingIds: number[]): Promise<number[]> => {
-    return new Promise<number[]>(async (resolve, reject) => {
-      parcelsTrackingIds.forEach(async (id: number) => {
-        await dbConnection
-          .getRepository(ParcelTracking)
-          .createQueryBuilder()
-          .update(ParcelTracking)
-          .set({
-            userId: null,
-            status: ParcelStatus.ready,
-          })
-          .where('id = :id', { id })
-          .execute();
-      });
-      resolve(parcelsTrackingIds);
-    });
   };
 
   /**s
