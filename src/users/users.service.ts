@@ -126,10 +126,9 @@ export class UsersService {
 
     if (detailedUser.parcels) {
       if (detailedUser.parcels.find(parcel =>
-        parcel.parcelTrackingStatus === ParcelStatus.distribution ||
-        parcel.parcelTrackingStatus === ParcelStatus.exception)) {
+        parcel.parcelTrackingStatus === ParcelStatus.distribution)) {
         throw new BadRequestException(
-          `User with id ${id} has parcels in distribution or exception status assigned, and therefore can not be deleted`,
+          `User with id ${id} has parcels in distribution status assigned, and therefore can not be deleted`,
         );
       }
     }
