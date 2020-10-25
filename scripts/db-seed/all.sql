@@ -51,7 +51,7 @@ CREATE TABLE `parcel` (
   PRIMARY KEY (`id`),
   KEY `parcel_user_fk_idx` (`currentUserId`),
   CONSTRAINT `parcel_user_fk` FOREIGN KEY (`currentUserId`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 DROP TABLE IF EXISTS `parcel_tracking`;
 CREATE TABLE `parcel_tracking` (
@@ -88,8 +88,10 @@ BEGIN
 	SELECT id, currentUserId, parcelTrackingStatus
 	FROM refua_delivery.parcel
 	WHERE 
-	(parcelTrackingStatus = 'assigned' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 12)
+	(parcelTrackingStatus = 'ready' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 12)
 	OR
+    (parcelTrackingStatus = 'assigned' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 12)
+    OR
 	(parcelTrackingStatus = 'distribution' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 6);
 
 	UPDATE parcel SET lastUpdateDate = CURRENT_TIMESTAMP, exception = 1
@@ -105,9 +107,9 @@ DELIMITER ;
 
 DROP EVENT IF EXISTS calculateExpiredParcelsEvent;
 CREATE EVENT calculateExpiredParcelsEvent
-# Run every day at 1:00
-ON SCHEDULE EVERY 1 DAY
-STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY + INTERVAL 1 HOUR)
+# Run every 5 minutes
+ON SCHEDULE EVERY 5 MINUTE
+STARTS (TIMESTAMP(CURRENT_TIME))
 DO CALL calculateExpiredParcelsSP;
 
 INSERT INTO `refua_delivery`.`users` (`first_name`, `last_name`, `delivery_area`, `delivery_days`, `phone`, `notes`, `username`, `password`, `salt`, `active`) VALUES ('כהן', 'יוסי', 'באר שבע', '1,2,5', '052-1234567', 'יכול בשעות הערב בלבד', 'rozman', 'd129f44c69f2964cb3768f77af4fac2b95c27183ddc0f36bd76db37cb340f337f8879a588141da6cd79176be6c535aedfa48bf809f7c29229c6033d32ddf4d74', 'b64b7196d89c2f8f', 1);
@@ -122,9 +124,11 @@ INSERT INTO `refua_delivery`.`admins` (`first_name`, `last_name`, `username`, `p
 
 
 INSERT INTO `refua_delivery`.`parcel` (`city`, `phone`, `customer_name`, `address`, `currentUserId`, `parcelTrackingStatus`, `comments`, `lastUpdateDate`, `signature`, `deleted`) VALUES ('תל אביב', '052-8556645', 'ישראל ישראלי', 'באר שבע, שטרן 20 א', 14, 'delivered', 'אין הערות', '2020-02-01 08:00:00', 'some base 64 signature', 0);
-INSERT INTO `refua_delivery`.`parcel` (`city`, `phone`, `customer_name`, `address`, `currentUserId`, `parcelTrackingStatus`, `comments`, `lastUpdateDate`, `signature`, `deleted`) VALUES ('באר שבע', '052-1234567', 'יהודית ירושלמי', 'באר שבע, שיכון ד', 14, 'ready', 'אין הערות', '2020-02-02 08:00:00', 'some base 64 signature', 0);
+INSERT INTO `refua_delivery`.`parcel` (`city`, `phone`, `customer_name`, `address`, `currentUserId`, `parcelTrackingStatus`, `comments`, `lastUpdateDate`, `signature`, `deleted`) VALUES ('באר שבע', '052-1234567', 'יהודית ירושלמי', 'באר שבע, שיכון ד', 14, 'assigned', 'אין הערות', '2020-02-02 08:00:00', 'some base 64 signature', 0);
+INSERT INTO `refua_delivery`.`parcel` (`city`, `phone`, `customer_name`, `address`, `currentUserId`, `parcelTrackingStatus`, `comments`, `lastUpdateDate`, `signature`, `deleted`) VALUES ('באר שבע', '052-1234567', 'ימשה משה', 'באר שבע, שיכון ד', null , 'ready', 'אין הערות', '2020-02-02 08:00:00', 'some base 64 signature', 0);
 
-INSERT INTO `refua_delivery`.`parcel_tracking` (`status_date`, `status`, `user_fk`, `parcel_fk`) VALUES ('2020-02-01 08:00:00', 'delivered', 14, 6);
+INSERT INTO `refua_delivery`.`parcel_tracking` (`status_date`, `status`, `user_fk`, `parcel_fk`) VALUES ('2020-02-01 08:00:00', 'delivered', 14, 1);
+INSERT INTO `refua_delivery`.`parcel_tracking` (`status_date`, `status`, `user_fk`, `parcel_fk`) VALUES ('2020-02-01 08:00:00', 'assigned', 14, 2);
 
 INSERT INTO `refua_delivery`.`push_token` (`id`, `user_fk`, `token`) VALUES (1, 14, 'some phone token');
 INSERT INTO `refua_delivery`.`push_token` (`id`, `user_fk`, `token`) VALUES (2, 15, 'some phone token');
