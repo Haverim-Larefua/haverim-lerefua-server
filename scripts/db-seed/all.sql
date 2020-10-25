@@ -47,6 +47,7 @@ CREATE TABLE `parcel` (
   `lastUpdateDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `signature` text DEFAULT NULL,
   `deleted` boolean DEFAULT false,
+  `exception` boolean DEFAULT false,
   PRIMARY KEY (`id`),
   KEY `parcel_user_fk_idx` (`currentUserId`),
   CONSTRAINT `parcel_user_fk` FOREIGN KEY (`currentUserId`) REFERENCES `users` (`id`)
