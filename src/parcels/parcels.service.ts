@@ -315,7 +315,11 @@ export class ParcelsService {
           .getRepository(Parcel)
           .createQueryBuilder()
           .update(Parcel)
-          .set({ parcelTrackingStatus: status, lastUpdateDate: new Date() })
+          .set({
+            parcelTrackingStatus: status,
+            lastUpdateDate: new Date(),
+            exception: false,
+          })
           .where('id = :id', { id })
           .execute();
 
