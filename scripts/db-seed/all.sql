@@ -47,6 +47,7 @@ CREATE TABLE `parcel` (
   `lastUpdateDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `signature` text DEFAULT NULL,
   `deleted` boolean DEFAULT false,
+  `exception` boolean DEFAULT false,
   PRIMARY KEY (`id`),
   KEY `parcel_user_fk_idx` (`currentUserId`),
   CONSTRAINT `parcel_user_fk` FOREIGN KEY (`currentUserId`) REFERENCES `users` (`id`)
@@ -74,6 +75,40 @@ CREATE TABLE `push_token` (
   PRIMARY KEY (`id`),
   CONSTRAINT `push_token_user` FOREIGN KEY (`user_fk`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP procedure IF EXISTS `calculateExpiredParcelsSP`;
+DELIMITER $$
+USE `refua_delivery`$$
+CREATE PROCEDURE `calculateExpiredParcelsSP` ()
+BEGIN
+	DROP TABLE IF EXISTS _temp_exception_ids;
+	CREATE TEMPORARY TABLE _temp_exception_ids(id int, currentUserId int, parcelTrackingStatus VARCHAR(30));
+
+	INSERT INTO _temp_exception_ids
+	SELECT id, currentUserId, parcelTrackingStatus
+	FROM refua_delivery.parcel
+	WHERE 
+	(parcelTrackingStatus = 'assigned' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 12)
+	OR
+	(parcelTrackingStatus = 'distribution' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 6);
+
+	UPDATE parcel SET lastUpdateDate = CURRENT_TIMESTAMP, exception = 1
+	WHERE id IN (SELECT id from _temp_exception_ids);
+
+	INSERT INTO parcel_tracking (status_date, status, user_fk, parcel_fk, comments)
+	SELECT CURRENT_TIMESTAMP, parcelTrackingStatus, currentUserId, id, "החבילה בחריגה"
+	FROM _temp_exception_ids;
+
+	DROP TABLE _temp_exception_ids;
+END$$
+DELIMITER ;
+
+DROP EVENT IF EXISTS calculateExpiredParcelsEvent;
+CREATE EVENT calculateExpiredParcelsEvent
+# Run every day at 1:00
+ON SCHEDULE EVERY 1 DAY
+STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY + INTERVAL 1 HOUR)
+DO CALL calculateExpiredParcelsSP;
 
 INSERT INTO `refua_delivery`.`users` (`first_name`, `last_name`, `delivery_area`, `delivery_days`, `phone`, `notes`, `username`, `password`, `salt`, `active`) VALUES ('כהן', 'יוסי', 'באר שבע', '1,2,5', '052-1234567', 'יכול בשעות הערב בלבד', 'rozman', 'd129f44c69f2964cb3768f77af4fac2b95c27183ddc0f36bd76db37cb340f337f8879a588141da6cd79176be6c535aedfa48bf809f7c29229c6033d32ddf4d74', 'b64b7196d89c2f8f', 1);
 INSERT INTO `refua_delivery`.`users` (`first_name`, `last_name`, `delivery_area`, `delivery_days`, `phone`, `notes`, `username`, `password`, `salt`, `active`) VALUES ('לוי', 'יהודית', 'תל אביב', '4,5', '05201233445', 'מגיעה במונית', 'meirav', 'd129f44c69f2964cb3768f77af4fac2b95c27183ddc0f36bd76db37cb340f337f8879a588141da6cd79176be6c535aedfa48bf809f7c29229c6033d32ddf4d74', 'b64b7196d89c2f8f', 1);

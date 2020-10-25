@@ -178,18 +178,14 @@ export class ParcelsService {
           .where('id = :parcelId', { parcelId })
           .execute();
 
-        // Update parcel tracking record in parcel_tracking table
-        await dbConnection
-          .getRepository(ParcelTracking)
-          .createQueryBuilder()
-          .update(ParcelTracking)
-          .set({
-            userId: userId,
-            parcelId: parcelId,
-            status: ParcelStatus.assigned,
-          })
-          .where('parcelId = :parcelId', { parcelId })
-          .execute();
+        const parcelTracking: Partial<ParcelTracking> = {
+          statusDate: new Date(),
+          status: ParcelStatus.assigned,
+          parcelId,
+          userId,
+        };
+
+        await this.addParcelTracking(parcelTracking);
 
         const currentParcel = await this.getParcelById(parcelId);
 
@@ -315,7 +311,11 @@ export class ParcelsService {
           .getRepository(Parcel)
           .createQueryBuilder()
           .update(Parcel)
-          .set({ parcelTrackingStatus: status, lastUpdateDate: new Date() })
+          .set({
+            parcelTrackingStatus: status,
+            lastUpdateDate: new Date(),
+            exception: false,
+          })
           .where('id = :id', { id })
           .execute();
 
