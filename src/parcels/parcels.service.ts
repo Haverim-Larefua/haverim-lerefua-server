@@ -35,11 +35,31 @@ export class ParcelsService {
   /**
    * Get all parcels
    */
-  getAllParcels(): Promise<Parcel[]> {
-    return this.parcelRepository.find({
-      relations: ['parcelTracking', 'user'],
-      where: [{ deleted: false }],
-    });
+  getAllParcels(filter: ParcelStatus): Promise<Parcel[]> {
+    if(filter !== undefined) {
+      if (filter === ParcelStatus.exception) {
+        // return all the packages that are in exception
+        Logger.log(`[ParcelsService] getAllParcels(), return all the parcels that are in exception`);
+        return this.parcelRepository.find({
+          relations: ['parcelTracking', 'user'],
+          where: [{ deleted: false , exception: true }],
+        });
+      } else {
+        // return all the packages with status filter
+        Logger.log(`[ParcelsService] getAllParcels(), return all the parcels with status: ${ filter } `);
+        return this.parcelRepository.find({
+          relations: ['parcelTracking', 'user'],
+          where: [{ deleted: false , parcelTrackingStatus: filter}],
+        });
+      }
+    } else {
+      // return all the packages
+      Logger.log(`[ParcelsService] getAllParcels(), return all parcels`);
+      return this.parcelRepository.find({
+        relations: ['parcelTracking', 'user'],
+        where: [{ deleted: false }],
+      });
+    }
   }
 
   /**

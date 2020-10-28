@@ -12,14 +12,18 @@ interface IUpdateParcelsStatusRequest {
   parcels: number[];
 }
 
+interface IGetAllParcelsQueryString {
+  filter: ParcelStatus;
+}
+
 @Controller('parcels')
 export class ParcelsController {
   constructor(private readonly parcelsService: ParcelsService) {}
 
   @Get()
-  getAllParcels(): Promise<Parcel[]> {
-    Logger.log(`[ParcelsController] getAllParcels()`);
-    return this.parcelsService.getAllParcels();
+  getAllParcels(@Query() query: IGetAllParcelsQueryString): Promise<Parcel[]> {
+    Logger.log(`[ParcelsController] getAllParcels(), query parameters are: ${ JSON.stringify(query)}`);
+    return this.parcelsService.getAllParcels(query.filter);
   }
 
   // @UseGuards(AuthGuard('app'))
