@@ -1,4 +1,4 @@
-DROP DATABASE `refua_delivery`;
+﻿DROP DATABASE `refua_delivery`;
 
 CREATE DATABASE IF NOT EXISTS `refua_delivery` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE `refua_delivery`;
@@ -132,3 +132,8 @@ INSERT INTO `refua_delivery`.`parcel_tracking` (`status_date`, `status`, `user_f
 
 INSERT INTO `refua_delivery`.`push_token` (`id`, `user_fk`, `token`) VALUES (1, 14, 'some phone token');
 INSERT INTO `refua_delivery`.`push_token` (`id`, `user_fk`, `token`) VALUES (2, 15, 'some phone token');
+
+
+ALTER TABLE `refua_delivery`.`parcel` 
+ADD COLUMN `start_date` date NULL DEFAULT NULL AFTER `comments`,
+ADD COLUMN `start_time` time NULL DEFAULT NULL AFTER `start_date`;

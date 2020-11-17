@@ -41,6 +41,12 @@ export class Parcel {
   @Column()
   comments: string;
 
+  @Column({ name: 'start_date' })
+  startDate: Date;
+
+  @Column({ name: 'start_time' })
+  startTime: string;
+
   @Column({ name: 'lastUpdateDate' })
   lastUpdateDate: Date;
 
