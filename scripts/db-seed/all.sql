@@ -137,3 +137,7 @@ INSERT INTO `refua_delivery`.`push_token` (`id`, `user_fk`, `token`) VALUES (2, 
 ALTER TABLE `refua_delivery`.`parcel` 
 ADD COLUMN `start_date` date NULL DEFAULT NULL AFTER `comments`,
 ADD COLUMN `start_time` time NULL DEFAULT NULL AFTER `start_date`;
+
+
+ALTER TABLE `refua_delivery`.`parcel` 
+ADD COLUMN `customer_id` VARCHAR(9) NULL DEFAULT NULL AFTER `customer_name`;

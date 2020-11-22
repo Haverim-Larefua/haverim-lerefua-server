@@ -30,6 +30,11 @@ export class Parcel {
   @Length(2, 45)
   customerName: string;
 
+  @Column({ name: 'customer_id' })
+  @IsNotEmpty()
+  @Length(9)
+  customerId: string;
+
   @Column()
   currentUserId: number;
 
