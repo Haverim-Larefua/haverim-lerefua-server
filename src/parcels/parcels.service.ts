@@ -9,19 +9,21 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { Repository, DeleteResult } from 'typeorm';
+import { Repository, DeleteResult, createQueryBuilder, Like, Raw } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 import { dbConnection } from './../db/database.providers';
-import { ParcelStatus } from '../entity/status.model';
+import { ParcelStatus } from '../enum/status.model';
 import { ParcelTracking } from '../entity/parcel.tracking.entity';
 import { PushToken } from '../entity/push-token.entity';
 import {
   ISendNewAssignmentPushMessage,
   PushTokenService,
 } from '../push-token/push-token.service';
+import { IGetAllParcelsQueryString } from './parcels.controller';
 
 @Injectable()
 export class ParcelsService {
+
   constructor(
     @Inject('PARCEL_REPOSITORY')
     private readonly parcelRepository: Repository<Parcel>,
@@ -30,36 +32,65 @@ export class ParcelsService {
     @Inject('PUSH_TOKEN_REPOSITORY')
     private readonly pushTokenRepository: Repository<PushToken>,
     private readonly pushTokenService: PushTokenService,
-  ) {}
+  ) { }
 
   /**
    * Get all parcels
    */
-  getAllParcels(filter: ParcelStatus): Promise<Parcel[]> {
-    if(filter !== undefined) {
-      if (filter === ParcelStatus.exception) {
-        // return all the packages that are in exception
-        Logger.log(`[ParcelsService] getAllParcels(), return all the parcels that are in exception`);
-        return this.parcelRepository.find({
-          relations: ['parcelTracking', 'user'],
-          where: [{ deleted: false , exception: true }],
-        });
-      } else {
-        // return all the packages with status filter
-        Logger.log(`[ParcelsService] getAllParcels(), return all the parcels with status: ${ filter } `);
-        return this.parcelRepository.find({
-          relations: ['parcelTracking', 'user'],
-          where: [{ deleted: false , parcelTrackingStatus: filter}],
-        });
-      }
-    } else {
-      // return all the packages
-      Logger.log(`[ParcelsService] getAllParcels(), return all parcels`);
-      return this.parcelRepository.find({
-        relations: ['parcelTracking', 'user'],
-        where: [{ deleted: false }],
-      });
+  public async getAllParcels(query: IGetAllParcelsQueryString): Promise<Parcel[]> {
+    const { cityFilterTerm, nameSearchTerm, statusFilterTerm } = query;
+    Logger.log(`[ParcelsService] getAllParcels(), return all the parcels with status: ${statusFilterTerm} city: ${cityFilterTerm} search term: ${nameSearchTerm}`);
+
+    const where = this.buildParcelsQueryWhereStatement(query);
+    const filteredParcels = await this.parcelRepository.find({
+      relations: ['parcelTracking', 'user'],
+      where: [where],
+    });
+    return filteredParcels;
+  }
+
+  private buildParcelsQueryWhereStatement(query: IGetAllParcelsQueryString) {
+    const { cityFilterTerm, nameSearchTerm, statusFilterTerm } = query;
+    let where: any = { deleted: false };
+
+    if (cityFilterTerm) {
+      where = { ...where, city: cityFilterTerm };
     }
+
+    if (nameSearchTerm) {
+      where = { ...where, customerName: Like(`%${nameSearchTerm}%`) };
+    }
+
+    if (statusFilterTerm) {
+      switch (statusFilterTerm) {
+        case ParcelStatus.ready:
+          where = {
+            ...where, parcelTrackingStatus: Raw(`"parcelTrackingStatus" IN ('${ParcelStatus.ready}','${ParcelStatus.assigned}')`),
+          };
+          break;
+        case ParcelStatus.exception:
+          where = { ...where, exception: true };
+          break;
+        default: {
+          where = { ...where, parcelTrackingStatus: statusFilterTerm };
+          break;
+        }
+      }
+    }
+
+    return where;
+  }
+
+  async getParcelsCityOptions(): Promise<string[]> {
+    Logger.log(`[ParcelsService] getParcelsCityOptions()`);
+    const cityResults = await this.parcelRepository.createQueryBuilder()
+      .select('city')
+      .distinct(true)
+      .where([{ deleted: false }])
+      .orderBy('city')
+      .getRawMany();
+
+    return cityResults.map(result => result.city);
   }
 
   /**
@@ -150,9 +181,9 @@ export class ParcelsService {
     Logger.debug(`parcel.parcelTrackingStatus: ${parcel.parcelTrackingStatus}`);
     const status: ParcelStatus =
       ParcelStatus[
-        parcel.parcelTrackingStatus
-          ? parcel.parcelTrackingStatus
-          : ParcelStatus.ready
+      parcel.parcelTrackingStatus
+        ? parcel.parcelTrackingStatus
+        : ParcelStatus.ready
       ];
     Logger.debug(`status: ${status}`);
     if (!status) {
@@ -393,12 +424,12 @@ export class ParcelsService {
     let parcel: Parcel = await this.canDeleteParcel(id);
 
     //unassign this parcel && change its status to ready
-    if (parcel.parcelTrackingStatus == ParcelStatus.assigned) {
+    if (parcel.parcelTrackingStatus === ParcelStatus.assigned) {
       parcel = await this.unassignParcel(id);
     }
 
     // mark parcel as deleted
-    Logger.log(`[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`, );
+    Logger.log(`[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`,);
     parcel.deleted = true;
     const result: Parcel = await this.parcelRepository.save(parcel);
     return result;
@@ -408,7 +439,7 @@ export class ParcelsService {
     const parcel: Parcel = await this.canDeleteParcel(id);
 
     //unassign this parcel && change its status to ready
-    if (parcel.parcelTrackingStatus == ParcelStatus.assigned) {
+    if (parcel.parcelTrackingStatus === ParcelStatus.assigned) {
       await this.unassignParcel(id);
     }
 

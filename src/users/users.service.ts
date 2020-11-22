@@ -1,9 +1,9 @@
-import {Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorException, NotFoundException, BadRequestException} from '@nestjs/common';
+import { Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { User } from '../entity/user.entity';
-import {Repository, Like} from 'typeorm';
-import {IPassword, saltHashPassword, sha512} from '../utils/crypto';
+import { Repository, Like } from 'typeorm';
+import { IPassword, saltHashPassword, sha512 } from '../utils/crypto';
 import { ParcelsService } from '../parcels/parcels.service';
-import { ParcelStatus } from '../entity/status.model';
+import { ParcelStatus } from '../enum/status.model';
 
 @Injectable()
 export class UsersService {
@@ -11,7 +11,7 @@ export class UsersService {
     @Inject('USER_REPOSITORY')
     private readonly userRepository: Repository<User>,
     private readonly parcelsService: ParcelsService,
-  ) {}
+  ) { }
 
   /**
    * Return all users
@@ -157,9 +157,9 @@ export class UsersService {
    */
   async validateUser(username: string, password: string): Promise<User> {
     Logger.log(`[UsersService] validateUser(${username},'*****')`);
-    const user =  await this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       select: ['id', 'username', 'firstName', 'lastName', 'password', 'salt', 'active'],
-      where: [ { username, active: true } ],
+      where: [{ username, active: true }],
     });
     if (!user || Object.keys(user).length === 0) {
       Logger.error(`[UsersService] validateUser() error with user credentials: ${username}`);
@@ -178,9 +178,9 @@ export class UsersService {
 
   async getUserByRefreshToken(refreshToken: string): Promise<User> {
     Logger.log(`[UsersService] getUserByRefreshToken(${refreshToken})`);
-    const user =  await this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       select: ['id', 'username', 'firstName', 'lastName', 'password', 'salt', 'active'],
-      where: [ { refreshToken, active: true } ],
+      where: [{ refreshToken, active: true }],
     });
     if (!user || Object.keys(user).length === 0) {
       Logger.error(`[UsersService] getUserByRefreshToken() error getting user by refreshToken: ${refreshToken}`);

@@ -1,8 +1,9 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from 'typeorm';
 import 'reflect-metadata';
 import { User } from './user.entity';
 import { ParcelTracking } from './parcel.tracking.entity';
-import { IsEnum, IsNotEmpty, Length} from 'class-validator';
+import { IsEnum, IsNotEmpty, Length } from 'class-validator';
+import { ParcelStatus } from 'src/enum/status.model';
 
 @Entity('parcel')
 export class Parcel {
@@ -35,8 +36,8 @@ export class Parcel {
   @Column() // TODO: currentStatus [delivered, sdfdsf]
   @IsNotEmpty() // TODO: in create parcel check if exits and if not set default
   @Length(2, 30)
-  @IsEnum(['ready', 'assigned', 'delivered', 'distribution', 'exception'])
-  parcelTrackingStatus: string;
+  @IsEnum(['ready', 'assigned', 'delivered', 'distribution'])
+  parcelTrackingStatus: ParcelStatus;
 
   @Column()
   comments: string;
