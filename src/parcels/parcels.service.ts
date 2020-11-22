@@ -63,11 +63,11 @@ export class ParcelsService {
 
     if (statusFilterTerm) {
       switch (statusFilterTerm) {
-        case ParcelStatus.ready:
-          where = {
-            ...where, parcelTrackingStatus: Raw(`"parcelTrackingStatus" IN ('${ParcelStatus.ready}','${ParcelStatus.assigned}')`),
-          };
-          break;
+        /* case ParcelStatus.ready:
+           where = {
+             ...where, parcelTrackingStatus: Raw(`("parcelTrackingStatus" = '${ParcelStatus.ready}' OR "parcelTrackingStatus" = '${ParcelStatus.assigned}')`),
+           };
+           break;*/
         case ParcelStatus.exception:
           where = { ...where, exception: true };
           break;
