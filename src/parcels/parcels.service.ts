@@ -9,7 +9,14 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { Repository, DeleteResult, createQueryBuilder, Like, Raw } from 'typeorm';
+import {
+  Repository,
+  DeleteResult,
+  createQueryBuilder,
+  Like,
+  Raw,
+  In,
+} from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 import { dbConnection } from './../db/database.providers';
 import { ParcelStatus } from '../enum/status.model';
@@ -23,7 +30,6 @@ import { IGetAllParcelsQueryString } from './parcels.controller';
 
 @Injectable()
 export class ParcelsService {
-
   constructor(
     @Inject('PARCEL_REPOSITORY')
     private readonly parcelRepository: Repository<Parcel>,
@@ -32,14 +38,18 @@ export class ParcelsService {
     @Inject('PUSH_TOKEN_REPOSITORY')
     private readonly pushTokenRepository: Repository<PushToken>,
     private readonly pushTokenService: PushTokenService,
-  ) { }
+  ) {}
 
   /**
    * Get all parcels
    */
-  public async getAllParcels(query: IGetAllParcelsQueryString): Promise<Parcel[]> {
+  public async getAllParcels(
+    query: IGetAllParcelsQueryString,
+  ): Promise<Parcel[]> {
     const { cityFilterTerm, nameSearchTerm, statusFilterTerm } = query;
-    Logger.log(`[ParcelsService] getAllParcels(), return all the parcels with status: ${statusFilterTerm} city: ${cityFilterTerm} search term: ${nameSearchTerm}`);
+    Logger.log(
+      `[ParcelsService] getAllParcels(), return all the parcels with status: ${statusFilterTerm} city: ${cityFilterTerm} search term: ${nameSearchTerm}`,
+    );
 
     const where = this.buildParcelsQueryWhereStatement(query);
     const filteredParcels = await this.parcelRepository.find({
@@ -63,11 +73,15 @@ export class ParcelsService {
 
     if (statusFilterTerm) {
       switch (statusFilterTerm) {
-        /* case ParcelStatus.ready:
-           where = {
-             ...where, parcelTrackingStatus: Raw(`("parcelTrackingStatus" = '${ParcelStatus.ready}' OR "parcelTrackingStatus" = '${ParcelStatus.assigned}')`),
-           };
-           break;*/
+        case ParcelStatus.ready:
+          where = {
+            ...where,
+            parcelTrackingStatus: In([
+              ParcelStatus.ready,
+              ParcelStatus.assigned,
+            ]),
+          };
+          break;
         case ParcelStatus.exception:
           where = { ...where, exception: true };
           break;
@@ -83,7 +97,8 @@ export class ParcelsService {
 
   async getParcelsCityOptions(): Promise<string[]> {
     Logger.log(`[ParcelsService] getParcelsCityOptions()`);
-    const cityResults = await this.parcelRepository.createQueryBuilder()
+    const cityResults = await this.parcelRepository
+      .createQueryBuilder()
       .select('city')
       .distinct(true)
       .where([{ deleted: false }])
@@ -112,7 +127,9 @@ export class ParcelsService {
     userId: number,
     statuses: string[],
   ): Promise<Parcel[]> {
-    Logger.log(`[ParcelsService] getParcelsByUserIdSpecificStatuses(${userId}, ${statuses})`);
+    Logger.log(
+      `[ParcelsService] getParcelsByUserIdSpecificStatuses(${userId}, ${statuses})`,
+    );
     return dbConnection
       .getRepository(Parcel)
       .createQueryBuilder('parcel')
@@ -181,9 +198,9 @@ export class ParcelsService {
     Logger.debug(`parcel.parcelTrackingStatus: ${parcel.parcelTrackingStatus}`);
     const status: ParcelStatus =
       ParcelStatus[
-      parcel.parcelTrackingStatus
-        ? parcel.parcelTrackingStatus
-        : ParcelStatus.ready
+        parcel.parcelTrackingStatus
+          ? parcel.parcelTrackingStatus
+          : ParcelStatus.ready
       ];
     Logger.debug(`status: ${status}`);
     if (!status) {
@@ -429,7 +446,9 @@ export class ParcelsService {
     }
 
     // mark parcel as deleted
-    Logger.log(`[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`,);
+    Logger.log(
+      `[ParcelsService] markParcelAsDeleted parcel: ${JSON.stringify(parcel)}`,
+    );
     parcel.deleted = true;
     const result: Parcel = await this.parcelRepository.save(parcel);
     return result;
