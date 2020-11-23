@@ -52,18 +52,18 @@ export class User {
   @IsNotEmpty()
   @Length(6)
   @Column({ select: true })
-  @Exclude()
+  @Exclude({ toPlainOnly: true })
   password: string;
 
   @Column({ select: false })
-  @Exclude()
+  @Exclude({ toPlainOnly: true })
   salt: string;
 
   @Column()
   active: boolean;
 
   @Column({ name: 'refresh_token' })
-  @Exclude()
+  @Exclude({ toPlainOnly: true })
   refreshToken: string;
 
   @OneToMany(type => Parcel, parcel => parcel.user)
