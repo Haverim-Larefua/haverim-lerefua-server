@@ -22,7 +22,7 @@ interface IAddSignatureRequest {
 interface IUpdateParcelsStatusRequest {
   status: string;
   userId: number;
-  parcelIds: number[];
+  parcels: number[];
 }
 
 export interface IGetAllParcelsQueryString {
@@ -137,12 +137,12 @@ export class ParcelsController {
     @Body() body: IUpdateParcelsStatusRequest,
   ): Promise<number[]> {
     Logger.log(
-      `[ParcelsController] updateParcelsStatus(${userId}, ${status}, ${body.parcelIds})`,
+      `[ParcelsController] updateParcelsStatus(${userId}, ${status}, ${body.parcels})`,
     );
     return this.parcelsService.updateParcelsStatus(
       body.userId,
       status,
-      body.parcelIds,
+      body.parcels,
     );
   }
 
