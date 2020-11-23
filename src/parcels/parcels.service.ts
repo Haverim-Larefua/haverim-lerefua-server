@@ -216,6 +216,8 @@ export class ParcelsService {
     return result;
   }
 
+  private readonly parcelAssignedToUser = 'חבילה שויכה לשליח';
+
   /**
    * Assign parcels to user, and return the new parcels object with the user.
    * Also send push notification to the user
@@ -251,6 +253,7 @@ export class ParcelsService {
           status: ParcelStatus.assigned,
           parcelId,
           userId,
+          comments: this.parcelAssignedToUser,
         };
 
         await this.addParcelTracking(parcelTracking);
