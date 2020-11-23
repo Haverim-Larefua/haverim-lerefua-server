@@ -1,7 +1,14 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany, Index} from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  Index,
+} from 'typeorm';
 import 'reflect-metadata';
 import { Parcel } from './parcel.entity';
-import {IsNotEmpty, Length} from 'class-validator';
+import { IsNotEmpty, Length } from 'class-validator';
+import { Exclude } from 'class-transformer/decorators';
 
 @Entity('users')
 export class User {
@@ -45,15 +52,18 @@ export class User {
   @IsNotEmpty()
   @Length(6)
   @Column({ select: true })
+  @Exclude()
   password: string;
 
   @Column({ select: false })
+  @Exclude()
   salt: string;
 
   @Column()
   active: boolean;
 
   @Column({ name: 'refresh_token' })
+  @Exclude()
   refreshToken: string;
 
   @OneToMany(type => Parcel, parcel => parcel.user)

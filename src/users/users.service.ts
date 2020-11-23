@@ -1,4 +1,12 @@
-import { Injectable, Inject, Logger, UnauthorizedException, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  UnauthorizedException,
+  InternalServerErrorException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { User } from '../entity/user.entity';
 import { Repository, Like } from 'typeorm';
 import { IPassword, saltHashPassword, sha512 } from '../utils/crypto';
@@ -11,14 +19,14 @@ export class UsersService {
     @Inject('USER_REPOSITORY')
     private readonly userRepository: Repository<User>,
     private readonly parcelsService: ParcelsService,
-  ) { }
+  ) {}
 
   /**
    * Return all users
    */
   async getAllUsers(): Promise<User[]> {
     Logger.log(`[UsersService] getAllUsers()`);
-    return this.userRepository.find({ active: true });
+    return this.userRepository.find();
   }
 
   /**
@@ -40,6 +48,7 @@ export class UsersService {
         },
       },
     });
+
     return user;
   }
 
@@ -63,6 +72,7 @@ export class UsersService {
         },
       },
     });
+
     return users;
   }
 
@@ -94,9 +104,7 @@ export class UsersService {
     Logger.log(`[UsersService] updateUser(${id}, ${JSON.stringify(user)})`);
     const existingUser = await this.getUserById(id);
     if (!existingUser) {
-      throw new InternalServerErrorException(
-        `User ${id} was not found`,
-      );
+      throw new InternalServerErrorException(`User ${id} was not found`);
     }
     if (user.password) {
       const pass: IPassword = saltHashPassword(user.password);
@@ -125,8 +133,11 @@ export class UsersService {
     }
 
     if (detailedUser.parcels) {
-      if (detailedUser.parcels.find(parcel =>
-        parcel.parcelTrackingStatus === ParcelStatus.distribution)) {
+      if (
+        detailedUser.parcels.find(
+          parcel => parcel.parcelTrackingStatus === ParcelStatus.distribution,
+        )
+      ) {
         throw new BadRequestException(
           `User with id ${id} has parcels in distribution status assigned, and therefore can not be deleted`,
         );
@@ -158,20 +169,28 @@ export class UsersService {
   async validateUser(username: string, password: string): Promise<User> {
     Logger.log(`[UsersService] validateUser(${username},'*****')`);
     const user = await this.userRepository.findOne({
-      select: ['id', 'username', 'firstName', 'lastName', 'password', 'salt', 'active'],
+      select: [
+        'id',
+        'username',
+        'firstName',
+        'lastName',
+        'password',
+        'salt',
+        'active',
+      ],
       where: [{ username, active: true }],
     });
     if (!user || Object.keys(user).length === 0) {
-      Logger.error(`[UsersService] validateUser() error with user credentials: ${username}`);
+      Logger.error(
+        `[UsersService] validateUser() error with user credentials: ${username}`,
+      );
       throw new UnauthorizedException();
     }
     const dbPass = sha512(password, user.salt).hash;
     if (dbPass !== user.password) {
       throw new UnauthorizedException();
     }
-    delete user.password;
-    delete user.salt;
-    delete user.refreshToken;
+
     Logger.debug(`[UsersService] validateUser() user: ${JSON.stringify(user)}`);
     return user;
   }
@@ -179,14 +198,23 @@ export class UsersService {
   async getUserByRefreshToken(refreshToken: string): Promise<User> {
     Logger.log(`[UsersService] getUserByRefreshToken(${refreshToken})`);
     const user = await this.userRepository.findOne({
-      select: ['id', 'username', 'firstName', 'lastName', 'password', 'salt', 'active'],
+      select: [
+        'id',
+        'username',
+        'firstName',
+        'lastName',
+        'password',
+        'salt',
+        'active',
+      ],
       where: [{ refreshToken, active: true }],
     });
     if (!user || Object.keys(user).length === 0) {
-      Logger.error(`[UsersService] getUserByRefreshToken() error getting user by refreshToken: ${refreshToken}`);
+      Logger.error(
+        `[UsersService] getUserByRefreshToken() error getting user by refreshToken: ${refreshToken}`,
+      );
       throw new UnauthorizedException();
     }
     return user;
   }
-
 }

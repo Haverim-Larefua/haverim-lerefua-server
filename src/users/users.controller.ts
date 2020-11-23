@@ -1,8 +1,20 @@
-import {Controller, Get, Delete, Param, Post, Body, Put, Logger} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Delete,
+  Param,
+  Post,
+  Body,
+  Put,
+  Logger,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../entity/user.entity';
 
 @Controller('users')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -41,5 +53,4 @@ export class UsersController {
     Logger.log(`[UsersController] deleteUser(${id})`);
     return this.usersService.deleteUser(id);
   }
-
 }
