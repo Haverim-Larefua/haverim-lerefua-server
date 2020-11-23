@@ -271,14 +271,36 @@ export class ParcelsService {
         Logger.debug(`[ParcelsService] parcelIds: added parcel: ${parcelId}`);
       }
 
-      const pushToken: PushToken = await this.pushTokenRepository.findOne({
-        userId,
-      });
+      try {
+        await this.pushMessageToUser(userId, pushMessages);
+      } catch (err) {
+        reject(err);
+      }
+
+      resolve(responseParcels);
+    });
+  }
+
+  private async pushMessageToUser(
+    userId: number,
+    pushMessages: ISendNewAssignmentPushMessage[],
+  ) {
+    const pushToken: PushToken = await this.pushTokenRepository.findOne({
+      userId,
+    });
+
+    return new Promise((resolve, reject) => {
+      if (!pushToken) {
+        resolve();
+        Logger.warn(`No push token was found to userId=${userId}`);
+        return;
+      }
 
       this.pushTokenService
         .sendNewAssignmentPushMessage(pushToken.token, pushMessages)
         .then(res => {
           Logger.debug(`Push notification send to user: ${userId}`);
+          resolve();
         })
         .catch(err => {
           Logger.error(
@@ -287,8 +309,6 @@ export class ParcelsService {
           );
           reject(err);
         });
-
-      resolve(responseParcels);
     });
   }
 
