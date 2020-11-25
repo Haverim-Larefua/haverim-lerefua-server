@@ -394,11 +394,12 @@ export class ParcelsService {
     parcel.parcelTrackingStatus = ParcelStatus.exception;
     await this.parcelRepository.save(parcel);
 
+    const exceptionMessage = exception ? ` - ${exception}` : '';
     const parcelTracking: Partial<ParcelTracking> = {
       status: ParcelStatus.exception,
       parcelId,
       userId: parcel.currentUserId,
-      comments: `חבילה עברה לחריגה - ${exception}`,
+      comments: `חבילה עברה לחריגה${exceptionMessage}`,
     };
     await this.addParcelTracking(parcelTracking);
   }
