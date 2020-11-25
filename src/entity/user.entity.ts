@@ -16,11 +16,13 @@ export class User {
   id: number;
 
   @Column({ name: 'first_name' })
+  @Index({ fulltext: true })
   @IsNotEmpty()
   @Length(2, 20)
   firstName: string;
 
   @Column({ name: 'last_name' })
+  @Index({ fulltext: true })
   @IsNotEmpty()
   @Length(2, 30)
   lastName: string;

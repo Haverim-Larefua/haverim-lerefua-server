@@ -9,9 +9,16 @@ import {
   Logger,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../entity/user.entity';
+
+export interface IGetAllUsersQueryString {
+  dayFilter?: string;
+  cityFilter?: string;
+  nameFilter?: string;
+}
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -19,9 +26,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getAllUsers(): Promise<User[]> {
-    Logger.log(`[UsersController] getAllUsers()`);
-    return this.usersService.getAllUsers();
+  getAllUsers(@Query() query: IGetAllUsersQueryString): Promise<User[]> {
+    Logger.log(`[UsersController] getAllUsers()`, JSON.stringify(query));
+    return this.usersService.getAllUsers(query);
+  }
+  @Get('/cityOptions')
+  getUsersCityOptions(): Promise<string[]> {
+    Logger.log(`[UsersController] getUsersCityOptions()`);
+    return this.usersService.getUsersCityOptions();
   }
 
   @Get(':id')

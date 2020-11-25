@@ -141,3 +141,7 @@ ADD COLUMN `start_time` time NULL DEFAULT NULL AFTER `start_date`;
 
 ALTER TABLE `refua_delivery`.`parcel` 
 ADD COLUMN `customer_id` VARCHAR(9) NULL DEFAULT NULL AFTER `customer_name`;
+
+ALTER TABLE `refua_delivery`.`users` 
+ADD FULLTEXT INDEX `name_fulltext` (`first_name`, `last_name`) VISIBLE;
+;

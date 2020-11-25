@@ -12,6 +12,7 @@ import { Repository, Like } from 'typeorm';
 import { IPassword, saltHashPassword, sha512 } from '../utils/crypto';
 import { ParcelsService } from '../parcels/parcels.service';
 import { ParcelStatus } from '../enum/status.model';
+import { IGetAllUsersQueryString } from './users.controller';
 
 @Injectable()
 export class UsersService {
@@ -24,9 +25,47 @@ export class UsersService {
   /**
    * Return all users
    */
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsers(query: IGetAllUsersQueryString): Promise<User[]> {
     Logger.log(`[UsersService] getAllUsers()`);
-    return this.userRepository.find();
+    const select = this.userRepository
+      .createQueryBuilder()
+      .select()
+      .where(this.buildUsersQueryWhereStatement(query));
+
+    if (query.nameFilter) {
+      select.andWhere(
+        `MATCH(first_name, last_name) AGAINST ('${query.nameFilter}' IN BOOLEAN MODE)`,
+      );
+    }
+    return select.getMany();
+  }
+
+  private buildUsersQueryWhereStatement(query: IGetAllUsersQueryString) {
+    const { dayFilter, cityFilter } = query;
+    let where: any = {};
+
+    if (cityFilter) {
+      where = { ...where, deliveryArea: cityFilter };
+    }
+
+    if (dayFilter) {
+      where = { ...where, deliveryDays: Like(`%${dayFilter}%`) };
+    }
+
+    return where;
+  }
+
+  async getUsersCityOptions(): Promise<string[]> {
+    Logger.log(`[UsersService] getUsersCityOptions()`);
+    const cityResults = await this.userRepository
+      .createQueryBuilder()
+      .select('delivery_area')
+      .where({ active: true })
+      .distinct(true)
+      .orderBy('delivery_area')
+      .getRawMany();
+
+    return cityResults.map(result => result.delivery_area);
   }
 
   /**
