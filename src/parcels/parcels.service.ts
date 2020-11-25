@@ -396,6 +396,9 @@ export class ParcelsService {
     Logger.log(
       `[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`,
     );
+
+    const finalStatus = this.getFinalStatus(status, userId);
+
     return new Promise<number[]>((resolve, reject) => {
       parcelsIds.forEach(async (id: number) => {
         await dbConnection
@@ -403,7 +406,7 @@ export class ParcelsService {
           .createQueryBuilder()
           .update(Parcel)
           .set({
-            parcelTrackingStatus: status,
+            parcelTrackingStatus: finalStatus,
             lastUpdateDate: new Date(),
             exception: false,
           })
@@ -412,7 +415,7 @@ export class ParcelsService {
 
         const parcelTracking: Partial<ParcelTracking> = {
           statusDate: new Date(),
-          status,
+          status: finalStatus,
           parcelId: id,
           userId,
         };
@@ -427,6 +430,14 @@ export class ParcelsService {
   ): Promise<ParcelTracking> => {
     return this.parcelTrackingRepository.save(parcelTracking);
   };
+
+  private getFinalStatus(status: ParcelStatus, userId: number) {
+    let finalStatus = status;
+    if (userId && status === ParcelStatus.ready) {
+      finalStatus = ParcelStatus.assigned;
+    }
+    return finalStatus;
+  }
 
   /**s
    * Update parcel by id
