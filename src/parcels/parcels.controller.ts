@@ -19,6 +19,10 @@ interface IAddSignatureRequest {
   signature: string;
 }
 
+interface IUpdateParcelWithExceptionRequest {
+  exception: string;
+}
+
 interface IUpdateParcelsStatusRequest {
   status: string;
   userId: number;
@@ -128,6 +132,17 @@ export class ParcelsController {
       parcelId,
       body.signature,
     );
+  }
+
+  @Put(':parcelId/exception')
+  updateParcelWithException(
+    @Param('parcelId') parcelId: number,
+    @Body() body: IUpdateParcelWithExceptionRequest,
+  ): void {
+    Logger.log(
+      `[ParcelsController] updateParcelWithException(${parcelId}, ${body.exception})`,
+    );
+    this.parcelsService.updateParcelWithException(parcelId, body.exception);
   }
 
   @Put('user/:userId/:status')

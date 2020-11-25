@@ -388,6 +388,21 @@ export class ParcelsService {
     return this.getParcelById(parcelId);
   }
 
+  async updateParcelWithException(parcelId: number, exception: string) {
+    const parcel = await this.getParcelById(parcelId);
+    parcel.exception = true;
+    parcel.parcelTrackingStatus = ParcelStatus.exception;
+    await this.parcelRepository.save(parcel);
+
+    const parcelTracking: Partial<ParcelTracking> = {
+      status: ParcelStatus.exception,
+      parcelId,
+      userId: parcel.currentUserId,
+      comments: `חבילה עברה לחריגה - ${exception}`,
+    };
+    await this.addParcelTracking(parcelTracking);
+  }
+
   updateParcelsStatus(
     userId: number,
     status: ParcelStatus,
