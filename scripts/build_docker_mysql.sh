@@ -24,8 +24,18 @@ docker create --net=host --name ${docker_name} -e DB_USERNAME=ffh_user -e DB_PAS
 
 
 
-### Copy the scheme creation script
-docker cp ../Haverim_LeRefua_Server/scripts/db-seed/all.sql ${docker_name}:/var/tmp/all.sql
+### Copy the scheme creation scriptץ
+init_script=scripts/db-seed/all.sql
+if [ -e "${init_script}" ]; then
+    docker cp ${init_script} ${docker_name}:/var/tmp/all.sql
+    if [ $? != 0 ]; then
+        echo "Cannot copy the init script (${init_script}) into the '${docker_name}' docker."
+        exit 3
+    fi
+else
+    echo "Cannot find the init script (${init_script})."
+    exit 2
+fi
 
 
 
