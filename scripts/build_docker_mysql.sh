@@ -20,7 +20,7 @@ fi
 ### Create the docker image.
 echo ""
 echo "Create the docker image."
-docker create --net=host --name ${docker_name} -e DB_USERNAME=ffh_user -e DB_PASSWORD=${db_pwd} mysql/mysql-server:latest
+docker create --net=host --name ${docker_name} -p 3306:3306 -e DB_USERNAME=ffh_user -e DB_PASSWORD=${db_pwd} mysql/mysql-server:latest
 
 
 
@@ -39,6 +39,7 @@ sleep 30
 
 ### Get the default root password.
 temp_password=$(docker logs ${docker_name} 2>&1 | grep GENERATED | awk '{print $NF}')
+
 
 
 ### Generate the MOP file.
