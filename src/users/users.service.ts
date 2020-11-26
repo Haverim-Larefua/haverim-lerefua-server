@@ -34,7 +34,7 @@ export class UsersService {
 
     if (query.nameFilter) {
       select.andWhere(
-        `MATCH(first_name, last_name) AGAINST ('${query.nameFilter}' IN BOOLEAN MODE)`,
+        `MATCH(first_name, last_name, phone) AGAINST ('${query.nameFilter}' IN BOOLEAN MODE)`,
       );
     }
     return select.getMany();

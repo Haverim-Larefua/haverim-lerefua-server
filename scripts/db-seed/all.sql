@@ -143,5 +143,9 @@ ALTER TABLE `refua_delivery`.`parcel`
 ADD COLUMN `customer_id` VARCHAR(9) NULL DEFAULT NULL AFTER `customer_name`;
 
 ALTER TABLE `refua_delivery`.`users` 
-ADD FULLTEXT INDEX `name_fulltext` (`first_name`, `last_name`) VISIBLE;
+ADD FULLTEXT INDEX `search_fulltext` (`first_name`, `last_name`, `phone`) WITH PARSER ngram VISIBLE;
+;
+
+ALTER TABLE `refua_delivery`.`parcel` 
+ADD FULLTEXT INDEX `search_fulltext` (`phone`, `customer_name`, `customer_id`) WITH PARSER ngram VISIBLE;
 ;

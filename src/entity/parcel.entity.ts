@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  JoinColumn,
+  OneToOne,
+  Index,
+} from 'typeorm';
 import 'reflect-metadata';
 import { User } from './user.entity';
 import { ParcelTracking } from './parcel.tracking.entity';
@@ -22,16 +30,20 @@ export class Parcel {
 
   @Column()
   @IsNotEmpty()
+  @Index({ fulltext: true })
+  @IsNotEmpty()
   @Length(7, 100)
   phone: string;
 
   @Column({ name: 'customer_name' })
   @IsNotEmpty()
+  @Index({ fulltext: true })
   @Length(2, 45)
   customerName: string;
 
   @Column({ name: 'customer_id' })
   @IsNotEmpty()
+  @Index({ fulltext: true })
   @Length(9)
   customerId: string;
 

@@ -32,7 +32,7 @@ interface IUpdateParcelsStatusRequest {
 export interface IGetAllParcelsQueryString {
   statusFilterTerm?: ParcelStatus;
   cityFilterTerm?: string;
-  nameSearchTerm?: string;
+  searchTerm?: string;
 }
 
 @Controller('parcels')

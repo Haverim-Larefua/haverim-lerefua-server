@@ -40,6 +40,7 @@ export class User {
   deliveryDays: string;
 
   @Column()
+  @Index({ fulltext: true })
   @IsNotEmpty()
   phone: string;
 

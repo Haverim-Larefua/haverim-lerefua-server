@@ -46,29 +46,32 @@ export class ParcelsService {
   public async getAllParcels(
     query: IGetAllParcelsQueryString,
   ): Promise<Parcel[]> {
-    const { cityFilterTerm, nameSearchTerm, statusFilterTerm } = query;
+    const { cityFilterTerm, searchTerm, statusFilterTerm } = query;
     Logger.log(
-      `[ParcelsService] getAllParcels(), return all the parcels with status: ${statusFilterTerm} city: ${cityFilterTerm} search term: ${nameSearchTerm}`,
+      `[ParcelsService] getAllParcels(), return all the parcels with status: ${statusFilterTerm} city: ${cityFilterTerm} search term: ${searchTerm}`,
     );
 
     const where = this.buildParcelsQueryWhereStatement(query);
-    const filteredParcels = await this.parcelRepository.find({
-      relations: ['parcelTracking', 'user'],
-      where: [where],
-    });
-    return filteredParcels;
+    const filteredParcels = this.parcelRepository
+      .createQueryBuilder()
+      .select()
+      .where(where);
+
+    if (searchTerm) {
+      filteredParcels.andWhere(
+        `MATCH(phone, customer_name, customer_id) AGAINST ('${searchTerm}' IN BOOLEAN MODE)`,
+      );
+    }
+
+    return filteredParcels.getMany();
   }
 
   private buildParcelsQueryWhereStatement(query: IGetAllParcelsQueryString) {
-    const { cityFilterTerm, nameSearchTerm, statusFilterTerm } = query;
+    const { cityFilterTerm, statusFilterTerm } = query;
     let where: any = { deleted: false };
 
     if (cityFilterTerm) {
       where = { ...where, city: cityFilterTerm };
-    }
-
-    if (nameSearchTerm) {
-      where = { ...where, customerName: Like(`%${nameSearchTerm}%`) };
     }
 
     if (statusFilterTerm) {
