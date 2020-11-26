@@ -1,7 +1,7 @@
 /*
-    Jenkins file for building the 'Friends For Help' project
+    Jenkins file for building the 'Friends For Health' project
     Author    : Yaron Golan <yaron.golan@intl.att.com>
-	Created   : 24-Mar-2020
+    Created   : 24-Mar-2020
     Component : Server
 */
 
@@ -30,17 +30,17 @@ String nodeName     = buildServers[prmTargetEnv]
 
 
 
-//      +-----------------------------
-//      |  Global variables.
-//      +-----------------------------
+// +-----------------------------
+// |  Global variables.
+// +-----------------------------
 String dockerVersion
 
 
 
 
 node (nodeName) {
-	
-	try {
+    
+    try {
 
         stage ("Init") {
 
@@ -52,62 +52,62 @@ node (nodeName) {
 
             // Set the build server's name.
             currentBuild.description = "Environment = ${nodeName}"
-		}
+        }
 
 
-		
-		stage ("Source control") {
-			
-			banner (env.STAGE_NAME)
-			
-			git credentialsId: 'HL_Aadmin', url: gitRepoUrl
-		}
-		
-		
-		
-		stage ("Compilation") {
-			
-			banner (env.STAGE_NAME)
-			
-			// Get the application version
-			dockerVersion = sh returnStdout: true, script: """
-				jq -r ".version" package.json
-			"""
-			
-			// Build the docker image.
-			sh """
-				docker build . -t ${dockerName}:${dockerVersion}
-			"""
-		}
-		
-		
-		
-		stage ("Deploy") {
-			
-			banner (env.STAGE_NAME)
-			
-			sh """
-				
-				### Remove the old container, if exists.
-				containers=\$(docker ps -a | grep ${dockerName} | wc -l)
-				if [ \${containers} -eq 1 ]; then
-					docker rm -f ${dockerName}
-				fi
-				
-				
-				### Create a container from the image
-				docker create --name ${dockerName} --net=host -e DB_USERNAME=ffh_user -e DB_PASSWORD='ffh_P@ssw0rd' ${dockerName}:${dockerVersion}
+        
+        stage ("Source control") {
+            
+            banner (env.STAGE_NAME)
+            
+            git credentialsId: 'HL_Aadmin', url: gitRepoUrl
+        }
+        
+        
+        
+        stage ("Compilation") {
+            
+            banner (env.STAGE_NAME)
+            
+            // Get the application version
+            dockerVersion = sh returnStdout: true, script: """
+                jq -r ".version" package.json
+            """
+            
+            // Build the docker image.
+            sh """
+                docker build . -t ${dockerName}:${dockerVersion}
+            """
+        }
+        
+        
+        
+        stage ("Deploy") {
+            
+            banner (env.STAGE_NAME)
+            
+            sh """
+                
+                ### Remove the old container, if exists.
+                containers=\$(docker ps -a | grep ${dockerName} | wc -l)
+                if [ \${containers} -eq 1 ]; then
+                    docker rm -f ${dockerName}
+                fi
+                
+                
+                ### Create a container from the image
+                docker create --name ${dockerName} -p 3306:3306 --net=host -e DB_USERNAME=ffh_user -e DB_PASSWORD='ffh_P@ssw0rd' ${dockerName}:${dockerVersion}
 
 
-				### Start the container.
-				docker start ${dockerName}
-			"""
-		}
-	}
-	catch (Exception ex) {
-		errorMessage = ex.getMessage()
-		error (String.format("Exception was caught - [%s]", errorMessage))
-	}
+                ### Start the container.
+                docker start ${dockerName}
+            """
+        }
+    }
+    catch (Exception ex) {
+        errorMessage = ex.getMessage()
+        error (String.format("Exception was caught - [%s]", errorMessage))
+    }
 } // node
 
 
