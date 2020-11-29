@@ -155,18 +155,11 @@ export class ParcelsController {
       `[ParcelsController] updateParcelsStatus(${userId}, ${status}, ${body.parcels})`,
     );
     return this.parcelsService.updateParcelsStatus(
-      body.userId,
+      userId,
       status,
       body.parcels,
     );
   }
-
-  // @Post()
-  // CreateParcels(@Body() parcels: Parcel[]) {
-  //   /*Logger.log(`[ParcelsController] CreateParcels()`);
-  //   const newParcel = this.parcelsService.findByNo(parcel.no); */
-  //   return '';
-  // }
 
   @Put(':id')
   updateParcel(@Param('id') id: number, @Body() parcel: Parcel) {
