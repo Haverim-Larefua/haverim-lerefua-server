@@ -77,7 +77,6 @@ export class UsersService {
     const user: User = await this.userRepository.findOne({
       where: {
         id,
-        active: true,
       },
       join: {
         alias: 'person',

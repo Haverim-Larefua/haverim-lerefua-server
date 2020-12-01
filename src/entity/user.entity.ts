@@ -52,8 +52,6 @@ export class User {
   @IsNotEmpty()
   username: string;
 
-  @IsNotEmpty()
-  @Length(6)
   @Column({ select: true })
   @Exclude({ toPlainOnly: true })
   password: string;
