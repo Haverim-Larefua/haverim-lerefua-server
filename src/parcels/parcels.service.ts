@@ -46,20 +46,28 @@ export class ParcelsService {
   public async getAllParcels(
     query: IGetAllParcelsQueryString,
   ): Promise<Parcel[]> {
-    const { cityFilterTerm, searchTerm, statusFilterTerm } = query;
+    const { cityFilterTerm, searchTerm, statusFilterTerm, freeCondition } = query;
     Logger.log(
       `[ParcelsService] getAllParcels(), return all the parcels with status: ${statusFilterTerm} city: ${cityFilterTerm} search term: ${searchTerm}`,
     );
 
     const where = this.buildParcelsQueryWhereStatement(query);
     const filteredParcels = this.parcelRepository
-      .createQueryBuilder()
+      .createQueryBuilder("parcel")
+      .leftJoinAndSelect("parcel.user", "user")
+      .leftJoinAndSelect("parcel.parcelTracking", "parcelTracking")
       .select()
       .where(where);
 
     if (searchTerm) {
       filteredParcels.andWhere(
         `MATCH(phone, customer_name, customer_id) AGAINST ('${searchTerm}' IN BOOLEAN MODE)`,
+      );
+    }
+
+    if (freeCondition) {
+      filteredParcels.andWhere(
+        freeCondition,
       );
     }
 

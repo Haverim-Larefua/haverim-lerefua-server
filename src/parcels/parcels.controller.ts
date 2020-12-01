@@ -33,6 +33,7 @@ export interface IGetAllParcelsQueryString {
   statusFilterTerm?: ParcelStatus;
   cityFilterTerm?: string;
   searchTerm?: string;
+  freeCondition?: string;
 }
 
 @Controller('parcels')
