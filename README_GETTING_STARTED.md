@@ -1,4 +1,4 @@
-### GETTING STARTED ###
+# GETTING STARTED #
 
 ## PREREQUISITES ##
 
@@ -33,3 +33,26 @@
    
 ## ERROR HANDLING ##
 Error handling document can be found in the 'docs' folder
+
+## Tests ##
+
+### E2E Tests ###
+Cypress is used for E2E tests.
+The Cypress tests files located in "haverim-larefua-portal\cypress\integration".
+
+**Use the following commands to run the application for E2E tests (with coverage support):**
+1. Run the BE - "npm run start:coverage".
+2. Run the FE with Cypress Manager - "npm run dev".
+**Coverage Results** - The FE and BE coverage results will be available on "haverim-larefua-portal\coverage\lcov-report\index.html"
+
+### Server Unit Tests ###
+Jest is used for Server tests
+1. Unit tests - npm test
+2. Tests coverage - npm run test:cov.
+
+### FE Unit Tests ###
+Jest is used for FE tests.
+
+Run the tests by enter the command "npm test".
+
+
