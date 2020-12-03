@@ -393,3 +393,4 @@ dist
 /.history
 /.vscode
 **/mop.sh
+/.nyc_output
