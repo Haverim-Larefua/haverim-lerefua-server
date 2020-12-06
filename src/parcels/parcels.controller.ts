@@ -17,6 +17,7 @@ import { ParcelStatus } from '../enum/status.model';
 
 interface IAddSignatureRequest {
   signature: string;
+  comment: string;
 }
 
 interface IUpdateParcelWithExceptionRequest {
@@ -132,6 +133,7 @@ export class ParcelsController {
       userId,
       parcelId,
       body.signature,
+      body.comment,
     );
   }
 

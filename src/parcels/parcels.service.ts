@@ -378,6 +378,7 @@ export class ParcelsService {
     userId: number,
     parcelId: number,
     signature: string,
+    comment: string,
   ): Promise<Parcel> {
     Logger.log(`[ParcelsService] addParcelSignature: ${parcelId}`);
     const parcel: Parcel = await this.getParcelById(parcelId);
@@ -389,7 +390,6 @@ export class ParcelsService {
     Logger.log(`[ParcelsService] parcel: ${JSON.stringify(parcel)}`);
     parcel.currentUserId = userId;
     parcel.signature = signature;
-
     const result: Parcel = await this.parcelRepository.save(parcel);
 
     // Update parcel_tracking table
@@ -397,6 +397,7 @@ export class ParcelsService {
       parcel.currentUserId,
       ParcelStatus.delivered,
       [result.id],
+      comment,
     );
 
     return this.getParcelById(parcelId);
@@ -421,9 +422,10 @@ export class ParcelsService {
     userId: number,
     status: ParcelStatus,
     parcelsIds: number[],
+    comment: string = '',
   ): Promise<number[]> {
     Logger.log(
-      `[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${parcelsIds})`,
+      `[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${comment} ${parcelsIds})`,
     );
 
     const finalStatus = this.getFinalStatus(status, userId);
@@ -445,6 +447,7 @@ export class ParcelsService {
         const parcelTracking: Partial<ParcelTracking> = {
           statusDate: new Date(),
           status: finalStatus,
+          comments: comment,
           parcelId: id,
           userId,
         };
