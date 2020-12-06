@@ -127,7 +127,7 @@ export class ParcelsController {
     @Body() body: IAddSignatureRequest,
   ): Promise<Parcel> {
     Logger.log(
-      `[ParcelsController] addParcelSignature(${userId}, ${parcelId}, ${body.signature})`,
+      `[ParcelsController] addParcelSignature(${userId}, ${parcelId}, ${body.signature}, ${body.comment})`,
     );
     return this.parcelsService.addParcelSignature(
       userId,
