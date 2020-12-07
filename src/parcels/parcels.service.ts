@@ -201,6 +201,26 @@ export class ParcelsService {
     });
   }
 
+  private findParcelByUniqProperties(parcel: Parcel): Promise<Parcel> {
+    const startDate = new Date(parcel.startDate).toISOString().slice(0, 10);
+    const startTime = parcel.startTime;
+    const customerId = parcel.customerId;
+
+    return  dbConnection
+    .getRepository(Parcel)
+    .createQueryBuilder('parcel')
+    .where('parcel.startTime = :startTime')
+    .andWhere('parcel.customerId = :customerId')
+    .andWhere('parcel.deleted = false')
+    .setParameters({
+      startTime,
+      customerId,
+    })
+    .select()
+     .andWhere(`Date(parcel.start_date) = '${startDate}'`)
+    .getOne();
+  }
+
   /**
    * Create new parcel, and return it
    * While creating the parcel need to create also record in parcel_tracking
@@ -209,6 +229,12 @@ export class ParcelsService {
    * @param parcel
    */
   async createParcel(parcel: Parcel): Promise<Parcel> {
+
+    const alreadyExists = await this.findParcelByUniqProperties(parcel);
+    if(alreadyExists) {
+      return null;
+    }
+
     Logger.debug(`parcel.parcelTrackingStatus: ${parcel.parcelTrackingStatus}`);
     const status: ParcelStatus =
       ParcelStatus[

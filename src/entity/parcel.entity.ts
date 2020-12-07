@@ -59,7 +59,7 @@ export class Parcel {
   comments: string;
 
   @Column({ name: 'start_date' })
-  startDate: Date;
+  startDate: string;
 
   @Column({ name: 'start_time' })
   startTime: string;

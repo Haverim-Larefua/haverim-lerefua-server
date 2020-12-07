@@ -16,6 +16,7 @@ export const databaseProviders = [
             database: environment.DB.NAME,
             entities: [__dirname + '/../**/*.entity{.ts,.js}'],
             synchronize: environment.DB.SYNCHRONIZE,
+            dateStrings: true,
           }),
   },
 ];
