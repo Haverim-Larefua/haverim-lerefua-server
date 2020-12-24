@@ -39,7 +39,7 @@ export interface IGetAllParcelsQueryString {
 
 @Controller('parcels')
 export class ParcelsController {
-  constructor(private readonly parcelsService: ParcelsService) {}
+  constructor(private readonly parcelsService: ParcelsService) { }
   @Get()
   getAllParcels(@Query() query: IGetAllParcelsQueryString): Promise<Parcel[]> {
     Logger.log(
@@ -101,14 +101,6 @@ export class ParcelsController {
     return this.parcelsService.createParcel(parcel);
   }
 
-  // @Put(':parcelId/assign/:userId')
-  // assignParcelToUser(
-  //     @Param('userId') userId: number,
-  //     @Param('parcelId') parcelId: number): Promise<Parcel> {
-  //   Logger.log(`[ParcelsController] assignParcelToUser(${userId}, ${parcelId})`);
-  //   return this.parcelsService.assignParcelToUser(userId, parcelId);
-  // }
-
   @Put('assign/:userId')
   assignParcelsToUser(
     @Param('userId') userId: number,
@@ -118,6 +110,16 @@ export class ParcelsController {
       `[ParcelsController] assignParcelsToUser(${userId}, ${parcelIds})`,
     );
     return this.parcelsService.assignParcelsToUser(userId, parcelIds);
+  }
+
+  @Put(':parcelId/unassign')
+  unassignParcel(
+    @Param('parcelId') parcelId: number,
+  ): Promise<Parcel> {
+    Logger.log(
+      `[ParcelsController] unassignParcel(${parcelId})`,
+    );
+    return this.parcelsService.unassignParcel(parcelId);
   }
 
   @Put(':parcelId/signature/:userId')
@@ -171,8 +173,8 @@ export class ParcelsController {
   }
 
   @Delete(':id/:keep')
-  deleteParcelbyId(@Param('id') id: number, @Param('keep') keep: boolean) {
-    Logger.log(`[ParcelsController] deleteParcelbyId()`);
+  deleteParcelById(@Param('id') id: number, @Param('keep') keep: boolean) {
+    Logger.log(`[ParcelsController] deleteParcelById()`);
     return this.parcelsService.deleteParcel(id, keep);
   }
 }
