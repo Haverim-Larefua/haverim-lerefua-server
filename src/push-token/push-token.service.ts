@@ -1,9 +1,9 @@
-import {Injectable, Inject, Logger} from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import {PushToken} from '../entity/push-token.entity';
-import {environment} from '../env';
-import {HttpMethod, sendHttpRequest} from '../networking/http-requestor';
-import {I18nService} from 'nestjs-i18n';
+import { PushToken } from '../entity/push-token.entity';
+import { environment } from '../env';
+import { HttpMethod, sendHttpRequest } from '../networking/http-requestor';
+import { I18nService } from 'nestjs-i18n';
 
 export enum PushNotificationConfigurationType {
   NEW_PACKAGE = 'newPackage',
@@ -33,7 +33,7 @@ export class PushTokenService {
   constructor(
     @Inject('PUSH_TOKEN_REPOSITORY') private readonly pushTokenRepository: Repository<PushToken>,
     private readonly i18n: I18nService,
-  ) {}
+  ) { }
 
   async getAllPushTokens() {
     const pushTokens = await this.pushTokenRepository.find({});
@@ -59,11 +59,11 @@ export class PushTokenService {
     }
   }
 
-  async notifyUserPushMessage(userId: number, title: string, subtitle: string, message: string): Promise<void> {
+  async notifyUserPushMessage(userId: number, title: string, subtitle: string, message: string, parcelId?: number[]): Promise<void> {
     const pushToken: PushToken = await this.pushTokenRepository.findOne({ userId });
 
     const pushConf: IPushNotificationConfiguration = {
-      packageIds: [0],
+      packageIds: parcelId || [0],
       type: PushNotificationConfigurationType.MESSAGE,
       notification: {
         title,
