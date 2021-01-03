@@ -1,32 +1,14 @@
-import {
-  Injectable,
-  Inject,
-  Logger,
-  HttpException,
-  HttpStatus,
-  InternalServerErrorException,
-  ConflictException,
-  ForbiddenException,
-  BadRequestException,
-} from '@nestjs/common';
-import {
-  Repository,
-  DeleteResult,
-  createQueryBuilder,
-  Like,
-  Raw,
-  In,
-} from 'typeorm';
+import { Injectable, Inject, Logger, InternalServerErrorException, ForbiddenException, BadRequestException, } from '@nestjs/common';
+import { Repository, In, } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 import { dbConnection } from './../db/database.providers';
 import { ParcelStatus } from '../enum/status.model';
 import { ParcelTracking } from '../entity/parcel.tracking.entity';
 import { PushToken } from '../entity/push-token.entity';
-import {
-  ISendNewAssignmentPushMessage,
-  PushTokenService,
-} from '../push-token/push-token.service';
+import { ISendNewAssignmentPushMessage, PushTokenService, } from '../push-token/push-token.service';
 import { IGetAllParcelsQueryString } from './parcels.controller';
+import { User } from 'src/entity/user.entity';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class ParcelsService {
@@ -35,10 +17,14 @@ export class ParcelsService {
     private readonly parcelRepository: Repository<Parcel>,
     @Inject('PARCEL_TRACKING_REPOSITORY')
     private readonly parcelTrackingRepository: Repository<ParcelTracking>,
+    @Inject('USER_REPOSITORY')
+    private readonly userRepository: Repository<User>,
     @Inject('PUSH_TOKEN_REPOSITORY')
     private readonly pushTokenRepository: Repository<PushToken>,
     private readonly pushTokenService: PushTokenService,
-  ) {}
+    private readonly i18n: I18nService,
+
+  ) { }
 
   /**
    * Get all parcels
@@ -206,19 +192,19 @@ export class ParcelsService {
     const startTime = parcel.startTime;
     const customerId = parcel.customerId;
 
-    return  dbConnection
-    .getRepository(Parcel)
-    .createQueryBuilder('parcel')
-    .where('parcel.startTime = :startTime')
-    .andWhere('parcel.customerId = :customerId')
-    .andWhere('parcel.deleted = false')
-    .setParameters({
-      startTime,
-      customerId,
-    })
-    .select()
-     .andWhere(`Date(parcel.start_date) = '${startDate}'`)
-    .getOne();
+    return dbConnection
+      .getRepository(Parcel)
+      .createQueryBuilder('parcel')
+      .where('parcel.startTime = :startTime')
+      .andWhere('parcel.customerId = :customerId')
+      .andWhere('parcel.deleted = false')
+      .setParameters({
+        startTime,
+        customerId,
+      })
+      .select()
+      .andWhere(`Date(parcel.start_date) = '${startDate}'`)
+      .getOne();
   }
 
   /**
@@ -231,16 +217,16 @@ export class ParcelsService {
   async createParcel(parcel: Parcel): Promise<Parcel> {
 
     const alreadyExists = await this.findParcelByUniqProperties(parcel);
-    if(alreadyExists) {
+    if (alreadyExists) {
       return null;
     }
 
     Logger.debug(`parcel.parcelTrackingStatus: ${parcel.parcelTrackingStatus}`);
     const status: ParcelStatus =
       ParcelStatus[
-        parcel.parcelTrackingStatus
-          ? parcel.parcelTrackingStatus
-          : ParcelStatus.ready
+      parcel.parcelTrackingStatus
+        ? parcel.parcelTrackingStatus
+        : ParcelStatus.ready
       ];
     Logger.debug(`status: ${status}`);
     if (!status) {
@@ -257,6 +243,9 @@ export class ParcelsService {
   }
 
   private readonly parcelAssignedToUser = 'חבילה שויכה לשליח';
+  private readonly notifyUserTitle = 'חברים לרפואה';
+  private readonly notifyUserSubTitle = 'שלום';
+  private readonly notifyUserMessage = 'ישנן חבילות המוכנות לחלוקה באזורך. אנא היכנס לאפליקצית שליחים לרפואה כדי לבחור את החבילות שרלוונטיות בשבילך.';
 
   /**
    * Assign parcels to user, and return the new parcels object with the user.
@@ -338,7 +327,7 @@ export class ParcelsService {
 
       this.pushTokenService
         .sendNewAssignmentPushMessage(pushToken.token, pushMessages)
-        .then(res => {
+        .then(() => {
           Logger.debug(`Push notification send to user: ${userId}`);
           resolve();
         })
@@ -360,8 +349,8 @@ export class ParcelsService {
     Logger.log(`[ParcelsService] parcelId: ${parcelId}`);
     const dt = new Date();
 
-    return new Promise<Parcel>(async (resolve, reject) => {
-      let responseParcel = await this.getParcelById(parcelId);
+    return new Promise<Parcel>(async (resolve) => {
+      await this.getParcelById(parcelId);
 
       // Update parcel table, set currentUserId, lastUpdateDate, parcelTrackingStatus
       await dbConnection
@@ -387,7 +376,7 @@ export class ParcelsService {
 
       await this.addParcelTracking(parcelTracking);
 
-      responseParcel = await this.getParcelById(parcelId);
+      const responseParcel = await this.getParcelById(parcelId);
 
       Logger.debug(`[ParcelsService] parcelId: unassigned parcel: ${parcelId}`);
       resolve(responseParcel);
@@ -456,7 +445,7 @@ export class ParcelsService {
 
     const finalStatus = this.getFinalStatus(status, userId);
 
-    return new Promise<number[]>((resolve, reject) => {
+    return new Promise<number[]>((resolve) => {
       parcelsIds.forEach(async (id: number) => {
         await dbConnection
           .getRepository(Parcel)
@@ -569,5 +558,55 @@ export class ParcelsService {
     } else {
       return await this.removeParcel(id);
     }
+  }
+
+  async notifyParcelsToUsers(parcelIds: number[]): Promise<void> {
+    Logger.log(`[ParcelsService] notifyParcelsToUsers parcelIds: ${JSON.stringify(parcelIds)}`,);
+    const parcels = await this.getReadyParcelWithoutUserByIds(parcelIds);
+    Logger.log(`[ParcelsService] notifyParcelsToUsers parcels: ${JSON.stringify(parcels)}`,);
+    if (parcels.length > 0) {
+      const parcelCities = parcels.map(parcel => parcel.city);
+      const users = await this.getUsersByCities(parcelCities);
+      Logger.log(`[ParcelsService] notifyParcelsToUsers users: ${JSON.stringify(users)}`);
+      const parcelIdsPerUserMap = new Map<number, number[]>();
+      parcels.forEach(parcel => {
+        users.filter(user => user.deliveryArea === parcel.city).forEach(user => {
+          if (!parcelIdsPerUserMap.has(user.id)) {
+            parcelIdsPerUserMap.set(user.id, [parcel.id]);
+          } else {
+            parcelIdsPerUserMap[user.id].push(parcel.id);
+          }
+        })
+      })
+      parcelIdsPerUserMap.forEach((parcelIdsPerUser: number[], userId) => {
+        const currentUser = users.find(u => u.id === userId);
+        const name = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : '';
+        const title = this.notifyUserTitle;
+        const subTitle = `${this.notifyUserSubTitle} ${name}`;
+        const message = this.notifyUserMessage;
+        Logger.log(`[ParcelsService] notifyParcelsToUsers userId: ${userId} (${name} ) - parcelIds: ${JSON.stringify(parcelIdsPerUser)}`,);
+
+        this.pushTokenService.notifyUserPushMessage(userId, title, subTitle, message, parcelIdsPerUser).catch(() => {
+          throw new InternalServerErrorException(`!Error sending push notification to users`);
+        });
+      })
+    }
+
+  }
+
+  async getReadyParcelWithoutUserByIds(parcelIds: number[]): Promise<Parcel[]> {
+    return await this.parcelRepository.createQueryBuilder('parcel')
+      .whereInIds(parcelIds)
+      .andWhere('parcel.deleted = false')
+      .andWhere('parcel.currentUserId IS NULL')
+      .andWhere("parcel.parcelTrackingStatus IN (:...status)", { status: [ParcelStatus.ready] })
+      .getMany()
+  }
+
+  async getUsersByCities(cities: string[]): Promise<User[]> {
+    return await this.userRepository.createQueryBuilder('users')
+      .where('users.active = true')
+      .andWhere("users.delivery_area IN (:...cities)", { cities })
+      .getMany()
   }
 }

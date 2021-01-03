@@ -177,4 +177,12 @@ export class ParcelsController {
     Logger.log(`[ParcelsController] deleteParcelById()`);
     return this.parcelsService.deleteParcel(id, keep);
   }
+
+
+  @Post('push')
+  notifyParcelsToUsers(
+    @Body() body: {parcelIds: number[]}): Promise<void> {
+      Logger.log(`[PushTokenController] notifyParcelsToUsers(${JSON.stringify(body)})`);
+      return this.parcelsService.notifyParcelsToUsers(body.parcelIds);
+  }
 }
