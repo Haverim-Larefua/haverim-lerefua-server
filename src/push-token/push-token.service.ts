@@ -61,7 +61,7 @@ export class PushTokenService {
 
   async notifyUserPushMessage(userId: number, title: string, subtitle: string, message: string, parcelId?: number[]): Promise<void> {
     const pushToken: PushToken = await this.pushTokenRepository.findOne({ userId });
-
+    if (!pushToken) return;
     const pushConf: IPushNotificationConfiguration = {
       packageIds: parcelId || [0],
       type: PushNotificationConfigurationType.MESSAGE,

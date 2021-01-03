@@ -590,9 +590,10 @@ export class ParcelsService {
       const message = 'message';
       Logger.log(`[ParcelsService] notifyParcelsToUsers userId: ${userId} - parcelIds: ${JSON.stringify(parcelIdsPerUser)}`,);
 
-     // this.pushTokenService.notifyUserPushMessage(userId, title, subTitle, message, parcelIdsPerUser)
+      this.pushTokenService.notifyUserPushMessage(userId, title, subTitle, message, parcelIdsPerUser).catch((err) => {
+        throw new InternalServerErrorException(`!Error sending push notification to users`);
+      });
     })
-    return Promise.resolve();
   }
 
   async getParcelByIds(parcelIds: number[]): Promise<Parcel[]> {
