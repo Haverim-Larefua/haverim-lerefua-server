@@ -1,27 +1,14 @@
-import { parcelTrackingProviders } from './parcel.providers';
-import {
-  Injectable,
-  Inject,
-  Logger,
-  InternalServerErrorException,
-  ForbiddenException,
-  BadRequestException,
-} from '@nestjs/common';
-import {
-  Repository,
-  In,
-} from 'typeorm';
+import { Injectable, Inject, Logger, InternalServerErrorException, ForbiddenException, BadRequestException, } from '@nestjs/common';
+import { Repository, In, } from 'typeorm';
 import { Parcel } from '../entity/parcel.entity';
 import { dbConnection } from './../db/database.providers';
 import { ParcelStatus } from '../enum/status.model';
 import { ParcelTracking } from '../entity/parcel.tracking.entity';
 import { PushToken } from '../entity/push-token.entity';
-import {
-  ISendNewAssignmentPushMessage,
-  PushTokenService,
-} from '../push-token/push-token.service';
+import { ISendNewAssignmentPushMessage, PushTokenService, } from '../push-token/push-token.service';
 import { IGetAllParcelsQueryString } from './parcels.controller';
 import { User } from 'src/entity/user.entity';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class ParcelsService {
@@ -35,6 +22,7 @@ export class ParcelsService {
     @Inject('PUSH_TOKEN_REPOSITORY')
     private readonly pushTokenRepository: Repository<PushToken>,
     private readonly pushTokenService: PushTokenService,
+    private readonly i18n: I18nService,
 
   ) { }
 
@@ -255,6 +243,9 @@ export class ParcelsService {
   }
 
   private readonly parcelAssignedToUser = 'חבילה שויכה לשליח';
+  private readonly notifyUserTitle = 'חברים לרפואה';
+  private readonly notifyUserSubTitle = 'שלום';
+  private readonly notifyUserMessage = 'ישנן חבילות המוכנות לחלוקה באזורך. אנא היכנס לאפליקצית שליחים לרפואה כדי לבחור את החבילות שרלוונטיות בשבילך.';
 
   /**
    * Assign parcels to user, and return the new parcels object with the user.
@@ -571,35 +562,43 @@ export class ParcelsService {
 
   async notifyParcelsToUsers(parcelIds: number[]): Promise<void> {
     Logger.log(`[ParcelsService] notifyParcelsToUsers parcelIds: ${JSON.stringify(parcelIds)}`,);
-    const parcels = await this.getParcelByIds(parcelIds);
-    const parcelCities = parcels.map(parcel => parcel.city);
-    const users = await this.getUsersByCities(parcelCities);
-    const parcelIdsPerUserMap = new Map<number, number[]>();
-    parcels.forEach(parcel => {
-      users.filter(user => user.deliveryArea === parcel.city).forEach(user => {
-        if (!parcelIdsPerUserMap.has(user.id)) {
-          parcelIdsPerUserMap.set(user.id, [parcel.id]);
-        } else {
-          parcelIdsPerUserMap[user.id].push(parcel.id);
-        }
+    const parcels = await this.getReadyParcelWithoutUserByIds(parcelIds);
+    Logger.log(`[ParcelsService] notifyParcelsToUsers parcels: ${JSON.stringify(parcels)}`,);
+    if (parcels.length > 0) {
+      const parcelCities = parcels.map(parcel => parcel.city);
+      const users = await this.getUsersByCities(parcelCities);
+      Logger.log(`[ParcelsService] notifyParcelsToUsers users: ${JSON.stringify(users)}`);
+      const parcelIdsPerUserMap = new Map<number, number[]>();
+      parcels.forEach(parcel => {
+        users.filter(user => user.deliveryArea === parcel.city).forEach(user => {
+          if (!parcelIdsPerUserMap.has(user.id)) {
+            parcelIdsPerUserMap.set(user.id, [parcel.id]);
+          } else {
+            parcelIdsPerUserMap[user.id].push(parcel.id);
+          }
+        })
       })
-    })
-    parcelIdsPerUserMap.forEach((parcelIdsPerUser: number[], userId) => {
-      const title = 'title';
-      const subTitle = 'subTitle';
-      const message = 'message';
-      Logger.log(`[ParcelsService] notifyParcelsToUsers userId: ${userId} - parcelIds: ${JSON.stringify(parcelIdsPerUser)}`,);
+      parcelIdsPerUserMap.forEach((parcelIdsPerUser: number[], userId) => {
+        const currentUser = users.find(u => u.id === userId);
+        const name = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : '';
+        const title = this.notifyUserTitle;
+        const subTitle = `${this.notifyUserSubTitle} ${name}`;
+        const message = this.notifyUserMessage;
+        Logger.log(`[ParcelsService] notifyParcelsToUsers userId: ${userId} (${name} ) - parcelIds: ${JSON.stringify(parcelIdsPerUser)}`,);
 
-      this.pushTokenService.notifyUserPushMessage(userId, title, subTitle, message, parcelIdsPerUser).catch((err) => {
-        throw new InternalServerErrorException(`!Error sending push notification to users`);
-      });
-    })
+        this.pushTokenService.notifyUserPushMessage(userId, title, subTitle, message, parcelIdsPerUser).catch(() => {
+          throw new InternalServerErrorException(`!Error sending push notification to users`);
+        });
+      })
+    }
+
   }
 
-  async getParcelByIds(parcelIds: number[]): Promise<Parcel[]> {
+  async getReadyParcelWithoutUserByIds(parcelIds: number[]): Promise<Parcel[]> {
     return await this.parcelRepository.createQueryBuilder('parcel')
       .whereInIds(parcelIds)
       .andWhere('parcel.deleted = false')
+      .andWhere('parcel.currentUserId IS NULL')
       .andWhere("parcel.parcelTrackingStatus IN (:...status)", { status: [ParcelStatus.ready] })
       .getMany()
   }
