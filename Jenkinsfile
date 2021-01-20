@@ -11,8 +11,8 @@
 //      |  Hard coded variables.
 //      +-----------------------------
 String dockerName    = "ffh_server"
-String gitRepoUrl    = "git@github.com:Haverim-Larefua/haverim-lerefua-server.git"
-def    buildServers  = ['Dev': 'master', 'Prod': 'HL-PROD']
+String gitRepoUrl    = "https://github.com/Haverim-Larefua/haverim-lerefua-server.git"
+def    buildServers  = ['Dev': 'Dev', 'Prod': 'Prod']
 
 
 
@@ -46,9 +46,7 @@ node (nodeName) {
 
             banner(env.STAGE_NAME)
 
-
             currentBuild.result = 'SUCCESS'
-
 
             // Set the build server's name.
             currentBuild.description = "Environment = ${nodeName}"
@@ -57,14 +55,14 @@ node (nodeName) {
 
         
         stage ("Source control") {
-            
+
             banner (env.STAGE_NAME)
-            
-            git credentialsId: 'HL_Aadmin', url: gitRepoUrl
+
+            git credentialsId: 'azure_AT_haverim.org.il', url: gitRepoUrl
         }
-        
-        
-        
+
+
+
         stage ("Compilation") {
             
             banner (env.STAGE_NAME)
