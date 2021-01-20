@@ -99,6 +99,10 @@ node (nodeName) {
 
                 ### Start the container.
                 docker start ${dockerName}
+
+
+                ### Make sure that the docker will boot automatically.
+                docker update --restart unless-stopped ${dockerName}
             """
         }
     }
