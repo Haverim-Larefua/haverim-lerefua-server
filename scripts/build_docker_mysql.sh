@@ -47,6 +47,11 @@ sleep 30
 
 
 
+### Verify that the docker will load after restart
+docker update --restart unless-stopped ${docker_name}
+
+
+
 ### Get the default root password.
 temp_password=$(docker logs ${docker_name} 2>&1 | grep GENERATED | awk '{print $NF}')
 
