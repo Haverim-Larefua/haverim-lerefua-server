@@ -159,6 +159,11 @@ export class ParcelsController {
     Logger.log(
       `[ParcelsController] updateParcelsStatus(${userId}, ${status}, ${body.parcels})`,
     );
+    
+    if (isNaN(userId)){
+      userId = null;
+    }
+    
     return this.parcelsService.updateParcelsStatus(
       userId,
       status,
