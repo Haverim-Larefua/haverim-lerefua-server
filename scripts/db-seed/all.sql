@@ -44,7 +44,7 @@ CREATE TABLE `parcel` (
   `customer_id` VARCHAR(9) NULL DEFAULT NULL,
   `currentUserId` int(11) DEFAULT NULL,
   `parcelTrackingStatus` varchar(30) DEFAULT NULL,
-  `comments` varchar(100) DEFAULT NULL,
+  `comments` varchar(500) DEFAULT NULL,
   `start_date` date NULL DEFAULT NULL,
   `start_time` time NULL DEFAULT NULL,
   `lastUpdateDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
