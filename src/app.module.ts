@@ -12,6 +12,7 @@ import {AdminsModule} from './admins/admins.module';
 import * as path from 'path';
 import { I18nModule } from 'nestjs-i18n';
 import { DownloadModule } from './download/download.module';
+import { CitiesModule } from './cities/cities.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { DownloadModule } from './download/download.module';
     AuthenticationModule,
     PushTokenModule,
     DownloadModule,
+    CitiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
