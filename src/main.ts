@@ -17,7 +17,7 @@ function setupSwagger(app: INestApplication) {
         .setTitle('Haverim Lerfua')
         .setDescription('Haverim Lerfua description')
         .setVersion('1.0')
-        .setSchemes('http')
+        .addServer('http://')
         .build();
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('swagger', app, document);
