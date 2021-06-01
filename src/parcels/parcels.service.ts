@@ -440,7 +440,7 @@ export class ParcelsService {
     comment: string = '',
   ): Promise<number[]> {
     Logger.log(
-      `[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${comment} ${parcelsIds})`,
+      `[ParcelsService] updateParcelsStatus(${userId}, ${status}, ${comment}, ${parcelsIds})`,
     );
 
     const finalStatus = this.getFinalStatus(status, userId);
