@@ -34,6 +34,11 @@ export class Parcel {
   @Length(7, 100)
   phone: string;
 
+  @Column()
+  @Index({ fulltext: true })
+  @Length(0, 100)
+  phone2: string;
+
   @Column({ name: 'customer_name' })
   @IsNotEmpty()
   @Index({ fulltext: true })

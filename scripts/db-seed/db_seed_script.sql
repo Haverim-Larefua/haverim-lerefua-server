@@ -41,6 +41,7 @@ CREATE TABLE `parcel` (
   `city` varchar(50) DEFAULT NULL,
   `address` varchar(100) DEFAULT NULL,
   `phone` varchar(100) DEFAULT NULL,
+  `phone2` varchar(100) DEFAULT NULL,
   `customer_name` varchar(45) DEFAULT NULL,
   `currentUserId` int(11) DEFAULT NULL,
   `parcelTrackingStatus` varchar(30) DEFAULT NULL,
