@@ -35,7 +35,6 @@ export class Parcel {
   phone: string;
 
   @Column()
-  @Index({ fulltext: true })
   @Length(0, 100)
   phone2: string;
 
