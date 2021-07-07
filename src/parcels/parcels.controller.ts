@@ -37,6 +37,12 @@ export interface IGetAllParcelsQueryString {
   freeCondition?: string;
 }
 
+
+export interface IParcelResult {
+  added: Parcel[];
+  errors: string[],
+}
+
 @Controller('parcels')
 export class ParcelsController {
   constructor(private readonly parcelsService: ParcelsService) { }
@@ -95,11 +101,12 @@ export class ParcelsController {
     }
   }
 
+
   @Post()
-  CreateParcel(@Body() parcel: Parcel) {
-    Logger.log(`[ParcelsController] CreateParcel(${JSON.stringify(parcel)})`);
-    return this.parcelsService.createParcel(parcel);
-  }
+  createParcels(@Body() parcels: Parcel[]) {
+    Logger.log(`[ParcelsController] CreateParcels)`);
+    return this.parcelsService.createParcels(parcels);
+  }  
 
   @Put('assign/:userId')
   assignParcelsToUser(
