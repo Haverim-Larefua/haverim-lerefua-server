@@ -6,7 +6,7 @@ import { ParcelStatus } from '../enum/status.model';
 import { ParcelTracking } from '../entity/parcel.tracking.entity';
 import { PushToken } from '../entity/push-token.entity';
 import { ISendNewAssignmentPushMessage, PushTokenService, } from '../push-token/push-token.service';
-import { IGetAllParcelsQueryString } from './parcels.controller';
+import { IGetAllParcelsQueryString, IParcelResult } from './parcels.controller';
 import { User } from 'src/entity/user.entity';
 import { I18nService } from 'nestjs-i18n';
 
@@ -207,6 +207,26 @@ export class ParcelsService {
       .getOne();
   }
 
+
+  async createParcels(parcels: Parcel[]) {
+    const result: IParcelResult = {
+      added: [],
+      errors: [],
+    };
+
+    for (let index = 0; index < parcels.length; index++) {
+      try {
+        const response = await this.createParcel(parcels[index]);
+        result.added.push(response);
+      } catch (ex) {
+        result.errors.push(`שורה ${index + 1}: ${ex.message}`)
+      }
+
+    }
+
+    return result;
+  }
+
   /**
    * Create new parcel, and return it
    * While creating the parcel need to create also record in parcel_tracking
@@ -216,10 +236,7 @@ export class ParcelsService {
    */
   async createParcel(parcel: Parcel): Promise<Parcel> {
 
-    const alreadyExists = await this.findParcelByUniqProperties(parcel);
-    if (alreadyExists) {
-      return null;
-    }
+    await this.validateParcel(parcel);
 
     Logger.debug(`parcel.parcelTrackingStatus: ${parcel.parcelTrackingStatus}`);
     const status: ParcelStatus =
@@ -246,6 +263,25 @@ export class ParcelsService {
   private readonly notifyUserTitle = 'חברים לרפואה';
   private readonly notifyUserSubTitle = 'שלום';
   private readonly notifyUserMessage = 'ישנן חבילות המוכנות לחלוקה באזורך. אנא היכנס לאפליקצית שליחים לרפואה כדי לבחור את החבילות שרלוונטיות בשבילך.';
+
+  private async validateParcel(parcel: Parcel) {
+    if (!parcel.startDate || !parcel.startTime) {
+      throw new BadRequestException('חסר תאריך התחלה או שעת התחלה');
+    }
+
+    if (!parcel.customerId || parcel.customerId.length == 0) {
+      throw new BadRequestException('חסר ת.ז');
+    }
+
+    if (!parcel.city || parcel.city.length == 0) {
+      throw new BadRequestException('חסר עיר');
+    }
+
+    const alreadyExists = await this.findParcelByUniqProperties(parcel);
+    if (alreadyExists) {
+      throw new BadRequestException("החבילה כבר קיימת");
+    }
+  }
 
   /**
    * Assign parcels to user, and return the new parcels object with the user.
