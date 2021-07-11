@@ -147,7 +147,7 @@ export class UsersService {
     }
     delete user.refreshToken;
 
-    await this.userRepository.update(id, user);
+    await this.userRepository.save(user);
   }
 
   /**

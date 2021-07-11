@@ -1694,13 +1694,13 @@ ALTER TABLE `refua_delivery`.`user2city`
 ADD CONSTRAINT `fk_user_id`
   FOREIGN KEY (`user_id`)
   REFERENCES `refua_delivery`.`users` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
+  ON DELETE CASCADE
+  ON UPDATE CASCADE,
 ADD CONSTRAINT `fk_city_id`
   FOREIGN KEY (`city_id`)
   REFERENCES `refua_delivery`.`cities` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+  ON DELETE CASCADE
+  ON UPDATE CASCADE;
 
 ALTER TABLE `refua_delivery`.`parcel` 
 CHANGE COLUMN `city` `city_old` VARCHAR(50) NULL DEFAULT NULL ;

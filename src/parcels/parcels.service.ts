@@ -48,6 +48,7 @@ export class ParcelsService {
       .createQueryBuilder('parcel')
       .leftJoinAndSelect('parcel.user', 'user')
       .leftJoinAndSelect('parcel.parcelTracking', 'parcelTracking')
+      .leftJoinAndSelect('parcel.city', 'city')
       .select()
       .where(where);
 
