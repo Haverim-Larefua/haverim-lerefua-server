@@ -44,11 +44,15 @@ export class UsersService {
   }
 
   private buildUsersQueryWhereStatement(query: IGetAllUsersQueryString) {
-    const { dayFilter } = query;
-    let where: any = {};
+    const { cityFilter, dayFilter } = query;
+    let where = "1 = 1 ";
+
+    if (cityFilter) {
+      where += `and cities.id IN (${cityFilter}) `;
+    }
 
     if (dayFilter) {
-      where = { ...where, deliveryDays: Like(`%${dayFilter}%`) };
+      where += `and delivery_days LIKE '%${dayFilter}%' `;
     }
 
     return where;

@@ -16,6 +16,7 @@ import { User } from '../entity/user.entity';
 
 export interface IGetAllUsersQueryString {
   dayFilter?: string;
+  cityFilter?: number[];
   nameFilter?: string;
 }
 

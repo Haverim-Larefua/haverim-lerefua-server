@@ -275,7 +275,7 @@ export class ParcelsService {
     }
 
     if (!parcel.city) {
-      throw new BadRequestException('חסר עיר');
+      throw new BadRequestException('חסר עיר או עיר לא תקינה');
     }
 
     const alreadyExists = await this.findParcelByUniqProperties(parcel);
