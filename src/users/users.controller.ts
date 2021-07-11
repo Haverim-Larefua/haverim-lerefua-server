@@ -16,7 +16,6 @@ import { User } from '../entity/user.entity';
 
 export interface IGetAllUsersQueryString {
   dayFilter?: string;
-  cityFilter?: string;
   nameFilter?: string;
 }
 
@@ -30,11 +29,7 @@ export class UsersController {
     Logger.log(`[UsersController] getAllUsers()`, JSON.stringify(query));
     return this.usersService.getAllUsers(query);
   }
-  @Get('/cityOptions')
-  getUsersCityOptions(): Promise<string[]> {
-    Logger.log(`[UsersController] getUsersCityOptions()`);
-    return this.usersService.getUsersCityOptions();
-  }
+
 
   @Get(':id')
   getUserById(@Param('id') id: number): Promise<User> {

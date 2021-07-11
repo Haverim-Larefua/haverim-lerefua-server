@@ -4,11 +4,14 @@ import {
   Column,
   OneToMany,
   Index,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import 'reflect-metadata';
 import { Parcel } from './parcel.entity';
 import { IsNotEmpty, Length } from 'class-validator';
 import { Exclude } from 'class-transformer/decorators';
+import { City } from './city.entity';
 
 @Entity('users')
 export class User {
@@ -26,11 +29,6 @@ export class User {
   @IsNotEmpty()
   @Length(2, 30)
   lastName: string;
-
-  @Column({ name: 'delivery_area' })
-  @IsNotEmpty()
-  @Length(2, 20)
-  deliveryArea: string;
 
   /*
   Note: MySql does not support array of int, so using string here
@@ -69,4 +67,16 @@ export class User {
 
   @OneToMany(type => Parcel, parcel => parcel.user)
   parcels: Parcel[];
+
+  @ManyToMany(type => City)
+  @JoinTable( {name: 'user2city',
+  joinColumn: {
+    name: 'user_id',
+    referencedColumnName: 'id',
+  },
+  inverseJoinColumn: {
+    name: 'city_id',
+    referencedColumnName: 'id',
+  }})
+  cities: City[];
 }

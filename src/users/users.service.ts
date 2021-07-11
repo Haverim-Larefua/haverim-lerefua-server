@@ -20,7 +20,7 @@ export class UsersService {
     @Inject('USER_REPOSITORY')
     private readonly userRepository: Repository<User>,
     private readonly parcelsService: ParcelsService,
-  ) {}
+  ) { }
 
   /**
    * Return all users
@@ -28,7 +28,10 @@ export class UsersService {
   async getAllUsers(query: IGetAllUsersQueryString): Promise<User[]> {
     Logger.log(`[UsersService] getAllUsers()`);
     const select = this.userRepository
-      .createQueryBuilder()
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.cities','cities')
+    	.leftJoinAndSelect("cities.district", "district")
+			.leftJoinAndSelect("cities.subdistrict", "subdistrict")
       .select()
       .where(this.buildUsersQueryWhereStatement(query));
 
@@ -41,31 +44,14 @@ export class UsersService {
   }
 
   private buildUsersQueryWhereStatement(query: IGetAllUsersQueryString) {
-    const { dayFilter, cityFilter } = query;
+    const { dayFilter } = query;
     let where: any = {};
-
-    if (cityFilter) {
-      where = { ...where, deliveryArea: cityFilter };
-    }
 
     if (dayFilter) {
       where = { ...where, deliveryDays: Like(`%${dayFilter}%`) };
     }
 
     return where;
-  }
-
-  async getUsersCityOptions(): Promise<string[]> {
-    Logger.log(`[UsersService] getUsersCityOptions()`);
-    const cityResults = await this.userRepository
-      .createQueryBuilder()
-      .select('delivery_area')
-      .where({ active: true })
-      .distinct(true)
-      .orderBy('delivery_area')
-      .getRawMany();
-
-    return cityResults.map(result => result.delivery_area);
   }
 
   /**
@@ -83,8 +69,10 @@ export class UsersService {
         leftJoinAndSelect: {
           parcels: 'person.parcels',
           parcel_tracking: 'parcels.parcelTracking',
+          cities: 'person.cities'
         },
       },
+
     });
 
     return user;
@@ -107,6 +95,7 @@ export class UsersService {
         leftJoinAndSelect: {
           parcels: 'person.parcels',
           parcel_tracking: 'parcels.parcelTracking',
+          cities: 'person.cities',
         },
       },
     });

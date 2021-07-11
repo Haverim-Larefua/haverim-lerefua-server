@@ -9,6 +9,7 @@ import { ISendNewAssignmentPushMessage, PushTokenService, } from '../push-token/
 import { IGetAllParcelsQueryString, IParcelResult } from './parcels.controller';
 import { User } from 'src/entity/user.entity';
 import { I18nService } from 'nestjs-i18n';
+import { City } from 'src/entity/city.entity';
 
 @Injectable()
 export class ParcelsService {
@@ -273,7 +274,7 @@ export class ParcelsService {
       throw new BadRequestException('חסר ת.ז');
     }
 
-    if (!parcel.city || parcel.city.length == 0) {
+    if (!parcel.city) {
       throw new BadRequestException('חסר עיר');
     }
 
@@ -606,7 +607,7 @@ export class ParcelsService {
       Logger.log(`[ParcelsService] notifyParcelsToUsers users: ${JSON.stringify(users)}`);
       const parcelIdsPerUserMap = new Map<number, number[]>();
       parcels.forEach(parcel => {
-        users.filter(user => user.deliveryArea === parcel.city).forEach(user => {
+        users.filter(user => user.cities.includes(parcel.city)).forEach(user => {
           if (!parcelIdsPerUserMap.has(user.id)) {
             parcelIdsPerUserMap.set(user.id, [parcel.id]);
           } else {
@@ -639,10 +640,10 @@ export class ParcelsService {
       .getMany()
   }
 
-  async getUsersByCities(cities: string[]): Promise<User[]> {
+  async getUsersByCities(cities: City[]): Promise<User[]> {
     return await this.userRepository.createQueryBuilder('users')
       .where('users.active = true')
-      .andWhere("users.delivery_area IN (:...cities)", { cities })
+      .andWhere("users.cities IN (:...cities)", { cities })
       .getMany()
   }
 }

@@ -1675,3 +1675,47 @@ INSERT INTO `refua_delivery`.`cities` (`name`,  `district_fk`,  `subdistrict_fk`
 INSERT INTO `refua_delivery`.`cities` (`name`,  `district_fk`,  `subdistrict_fk`) VALUES ('תרבין א-צאנע (יישוב)*','6','62');
 INSERT INTO `refua_delivery`.`cities` (`name`,  `district_fk`,  `subdistrict_fk`) VALUES ('תרום','1','11');
 
+
+CREATE TABLE `refua_delivery`.`user2city` (
+  `id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  `city_id` INT NOT NULL,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `refua_delivery`.`user2city` 
+ADD INDEX `user_id_idx` (`user_id` ASC) VISIBLE,
+ADD INDEX `fk_city_id_idx` (`city_id` ASC) VISIBLE;
+;
+
+ALTER TABLE `refua_delivery`.`user2city` 
+CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
+
+ALTER TABLE `refua_delivery`.`user2city` 
+ADD CONSTRAINT `fk_user_id`
+  FOREIGN KEY (`user_id`)
+  REFERENCES `refua_delivery`.`users` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_city_id`
+  FOREIGN KEY (`city_id`)
+  REFERENCES `refua_delivery`.`cities` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+ALTER TABLE `refua_delivery`.`parcel` 
+CHANGE COLUMN `city` `city_old` VARCHAR(50) NULL DEFAULT NULL ;
+
+
+ALTER TABLE `refua_delivery`.`parcel` 
+ADD COLUMN `city` INT(11) NULL AFTER `id`,
+ADD INDEX `parcel_city_fk_idx` (`city` ASC) VISIBLE;
+;
+ALTER TABLE `refua_delivery`.`parcel` 
+ADD CONSTRAINT `parcel_city_fk`
+  FOREIGN KEY (`city`)
+  REFERENCES `refua_delivery`.`cities` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+

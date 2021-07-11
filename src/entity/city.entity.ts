@@ -5,7 +5,7 @@ import { Subdistrict } from './subdistrict.entity';
 @Entity('cities')
 export class City {
 	@PrimaryGeneratedColumn()
-  id: number;
+    id: number;
 
 	@Column()
 	name: string;

@@ -6,12 +6,14 @@ import {
   JoinColumn,
   OneToOne,
   Index,
+  ManyToOne,
 } from 'typeorm';
 import 'reflect-metadata';
 import { User } from './user.entity';
 import { ParcelTracking } from './parcel.tracking.entity';
 import { IsEnum, IsNotEmpty, Length } from 'class-validator';
 import { ParcelStatus } from 'src/enum/status.model';
+import { City } from './city.entity';
 
 @Entity('parcel')
 export class Parcel {
@@ -19,9 +21,9 @@ export class Parcel {
   id: number;
 
   @Column()
-  @IsNotEmpty()
-  @Length(2, 50)
-  city: string;
+  @ManyToOne(type => City)
+  @JoinColumn({ name: 'city', referencedColumnName: 'id' })
+  city: City;
 
   @Column()
   @IsNotEmpty()
