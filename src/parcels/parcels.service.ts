@@ -48,7 +48,7 @@ export class ParcelsService {
       .createQueryBuilder('parcel')
       .leftJoinAndSelect('parcel.user', 'user')
       .leftJoinAndSelect('parcel.parcelTracking', 'parcelTracking')
-      .leftJoinAndSelect('parcel.city', 'city')
+      .innerJoinAndSelect('parcel.city', 'city')
       .select()
       .where(where);
 
@@ -100,14 +100,15 @@ export class ParcelsService {
   async getParcelsCityOptions(): Promise<string[]> {
     Logger.log(`[ParcelsService] getParcelsCityOptions()`);
     const cityResults = await this.parcelRepository
-      .createQueryBuilder()
-      .select('city')
-      .distinct(true)
+      .createQueryBuilder('parcel')
+      .leftJoinAndSelect('parcel.city', 'city')
+      .orderBy('city.name')
       .where([{ deleted: false }])
-      .orderBy('city')
-      .getRawMany();
+      .select()
+      .getMany();
 
-    return cityResults.map(result => result.city);
+    const cityList = cityResults.map(result => result.city.name)
+    return [...new Set(cityList)];
   }
 
   /**
@@ -117,7 +118,7 @@ export class ParcelsService {
   getParcelById(id: number): Promise<Parcel> {
     return this.parcelRepository.findOne(id, {
       where: [{ deleted: false }],
-      relations: ['parcelTracking', 'user'],
+      relations: ['parcelTracking', 'user', 'city'],
     });
   }
 

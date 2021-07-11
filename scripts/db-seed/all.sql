@@ -1694,13 +1694,13 @@ ALTER TABLE `refua_delivery`.`user2city`
 ADD CONSTRAINT `fk_user_id`
   FOREIGN KEY (`user_id`)
   REFERENCES `refua_delivery`.`users` (`id`)
-  ON DELETE CASCADE
-  ON UPDATE CASCADE,
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
 ADD CONSTRAINT `fk_city_id`
   FOREIGN KEY (`city_id`)
   REFERENCES `refua_delivery`.`cities` (`id`)
-  ON DELETE CASCADE
-  ON UPDATE CASCADE;
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
 
 ALTER TABLE `refua_delivery`.`parcel` 
 CHANGE COLUMN `city` `city_old` VARCHAR(50) NULL DEFAULT NULL ;
@@ -1716,6 +1716,12 @@ ADD CONSTRAINT `parcel_city_fk`
   REFERENCES `refua_delivery`.`cities` (`id`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
+
+ALTER TABLE `refua_delivery`.`district` 
+RENAME TO  `refua_delivery`.`districts` ;
+
+ALTER TABLE `refua_delivery`.`subdistrict` 
+RENAME TO  `refua_delivery`.`subdistricts` ;
 
 
 
