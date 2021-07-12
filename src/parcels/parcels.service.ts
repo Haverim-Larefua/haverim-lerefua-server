@@ -596,19 +596,19 @@ export class ParcelsService {
 
   async notifyParcelsToUsers(parcelIds: number[]): Promise<void> {
     Logger.log(`[ParcelsService] notifyParcelsToUsers parcelIds: ${JSON.stringify(parcelIds)}`,);
-    const parcels = await this.getReadyParcelWithoutUserByIds(parcelIds);
+    const parcels: Parcel[] = await this.getReadyParcelWithoutUserByIds(parcelIds);
     Logger.log(`[ParcelsService] notifyParcelsToUsers parcels: ${JSON.stringify(parcels)}`,);
     if (parcels.length > 0) {
-      const parcelCities = parcels.map(parcel => parcel.city);
+      const parcelCities: number[] =  parcels.map(parcel => parcel.city.id);
       const users = await this.getUsersByCities(parcelCities);
       Logger.log(`[ParcelsService] notifyParcelsToUsers users: ${JSON.stringify(users)}`);
       const parcelIdsPerUserMap = new Map<number, number[]>();
       parcels.forEach(parcel => {
-        users.filter(user => user.cities.includes(parcel.city)).forEach(user => {
+        users.filter(user => user.cities.find(c => parcel.city)).forEach(user => {
           if (!parcelIdsPerUserMap.has(user.id)) {
             parcelIdsPerUserMap.set(user.id, [parcel.id]);
           } else {
-            parcelIdsPerUserMap[user.id].push(parcel.id);
+            parcelIdsPerUserMap.get(user.id).push(parcel.id);
           }
         })
       })
@@ -630,6 +630,7 @@ export class ParcelsService {
 
   async getReadyParcelWithoutUserByIds(parcelIds: number[]): Promise<Parcel[]> {
     return await this.parcelRepository.createQueryBuilder('parcel')
+    .leftJoinAndSelect('parcel.city', 'city')
       .whereInIds(parcelIds)
       .andWhere('parcel.deleted = false')
       .andWhere('parcel.currentUserId IS NULL')
@@ -637,10 +638,10 @@ export class ParcelsService {
       .getMany()
   }
 
-  async getUsersByCities(cities: City[]): Promise<User[]> {
+  async getUsersByCities(cities: number[]): Promise<User[]> {
     return await this.userRepository.createQueryBuilder('users')
-      .where('users.active = true')
-      .andWhere("users.cities IN (:...cities)", { cities })
+    .leftJoinAndSelect('users.cities','cities')
+      .where(`users.active = true and cities.id IN (${cities}) `)
       .getMany()
   }
 }
