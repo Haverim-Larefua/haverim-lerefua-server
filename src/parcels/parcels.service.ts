@@ -67,28 +67,23 @@ export class ParcelsService {
 
   private buildParcelsQueryWhereStatement(query: IGetAllParcelsQueryString) {
     const { cityFilterTerm, statusFilterTerm } = query;
-    let where: any = { deleted: false };
+
+    let where = "deleted = false ";
 
     if (cityFilterTerm) {
-      where = { ...where, city: cityFilterTerm };
+      where += `and city.id IN (${cityFilterTerm}) `;
     }
 
     if (statusFilterTerm) {
       switch (statusFilterTerm) {
         case ParcelStatus.ready:
-          where = {
-            ...where,
-            parcelTrackingStatus: In([
-              ParcelStatus.ready,
-              ParcelStatus.assigned,
-            ]),
-          };
+          where += `and parcelTrackingStatus IN ('${ParcelStatus.ready}', '${ParcelStatus.assigned}') `;
           break;
         case ParcelStatus.exception:
-          where = { ...where, exception: true };
+          where += "and exception = true ";
           break;
         default: {
-          where = { ...where, parcelTrackingStatus: statusFilterTerm };
+          where += `and parcelTrackingStatus = '${statusFilterTerm}' `;
           break;
         }
       }

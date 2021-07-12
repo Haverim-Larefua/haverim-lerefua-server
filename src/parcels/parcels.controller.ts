@@ -32,7 +32,7 @@ interface IUpdateParcelsStatusRequest {
 
 export interface IGetAllParcelsQueryString {
   statusFilterTerm?: ParcelStatus;
-  cityFilterTerm?: string;
+  cityFilterTerm?: number[];
   searchTerm?: string;
   freeCondition?: string;
 }
