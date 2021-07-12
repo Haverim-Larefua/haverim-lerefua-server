@@ -219,7 +219,7 @@ export class ParcelsService {
         const response = await this.createParcel(parcels[index]);
         result.added.push(response);
       } catch (ex) {
-        result.errors.push(`שורה ${index + 1}: ${ex.message}`)
+        result.errors.push(`שורה ${index + 2}: ${ex.message}`)
       }
 
     }
