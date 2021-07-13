@@ -56,12 +56,6 @@ export class ParcelsController {
     return this.parcelsService.getAllParcels(query);
   }
 
-  @Get('/cityOptions')
-  getParcelsCityOptions(): Promise<string[]> {
-    Logger.log(`[ParcelsController] getParcelsCityOptions()`);
-    return this.parcelsService.getParcelsCityOptions();
-  }
-
   // @UseGuards(AuthGuard('app'))
   @Get(':id')
   getParcelById(@Param('id') id: number): Promise<Parcel> {

@@ -92,19 +92,6 @@ export class ParcelsService {
     return where;
   }
 
-  async getParcelsCityOptions(): Promise<string[]> {
-    Logger.log(`[ParcelsService] getParcelsCityOptions()`);
-    const cityResults = await this.parcelRepository
-      .createQueryBuilder('parcel')
-      .leftJoinAndSelect('parcel.city', 'city')
-      .orderBy('city.name')
-      .where([{ deleted: false }])
-      .select()
-      .getMany();
-
-    const cityList = cityResults.map(result => result.city.name)
-    return [...new Set(cityList)];
-  }
 
   /**
    * Get parcel by parcel id
