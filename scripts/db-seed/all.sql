@@ -1724,4 +1724,13 @@ ALTER TABLE `refua_delivery`.`subdistrict`
 RENAME TO  `refua_delivery`.`subdistricts` ;
 
 
+UPDATE refua_delivery.cities  SET name = REPLACE(name, '*', '')
+where name like '%*%' and id > 0;
+
+update refua_delivery.cities  set name = 'כפר חסידים' where name like '%כפר חסידים א%' and id > 0;
+
+delete from refua_delivery.cities  where name like '%חסידים ב%' and id > 0;
+
+
+
 
