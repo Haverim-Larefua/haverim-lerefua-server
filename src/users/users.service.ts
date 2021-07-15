@@ -13,6 +13,7 @@ import { IPassword, saltHashPassword, sha512 } from '../utils/crypto';
 import { ParcelsService } from '../parcels/parcels.service';
 import { ParcelStatus } from '../enum/status.model';
 import { IGetAllUsersQueryString } from './users.controller';
+import { SMSService } from 'src/utils/sms.service';
 
 @Injectable()
 export class UsersService {
@@ -29,9 +30,9 @@ export class UsersService {
     Logger.log(`[UsersService] getAllUsers()`);
     const select = this.userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.cities','cities')
-    	.leftJoinAndSelect("cities.district", "district")
-			.leftJoinAndSelect("cities.subdistrict", "subdistrict")
+      .leftJoinAndSelect('user.cities', 'cities')
+      .leftJoinAndSelect("cities.district", "district")
+      .leftJoinAndSelect("cities.subdistrict", "subdistrict")
       .select()
       .where(this.buildUsersQueryWhereStatement(query));
 
@@ -137,17 +138,43 @@ export class UsersService {
     if (!existingUser) {
       throw new InternalServerErrorException(`User ${id} was not found`);
     }
-    if (user.password) {
-      const pass: IPassword = saltHashPassword(user.password);
-      user.password = pass.hash;
-      user.salt = pass.salt;
-    }
     if (!user.username) {
       user.username = existingUser.username;
     }
     delete user.refreshToken;
 
     await this.userRepository.save(user);
+  }
+
+  async updatePassword(id: number, password: string): Promise<void> {
+    const existingUser = await this.getUserById(id);
+    if (!existingUser) {
+      throw new InternalServerErrorException(`User ${id} was not found`);
+    }
+
+    await this.saveNewPassword(password, existingUser);
+  }
+
+  private async saveNewPassword(password: string, existingUser: User) {
+    const pass: IPassword = saltHashPassword(password);
+    existingUser.password = pass.hash;
+    existingUser.salt = pass.salt;
+    delete existingUser.refreshToken;
+    existingUser.new = false;
+
+    await this.userRepository.save(existingUser);
+  }
+
+  async forgotPassword(id: number, phoneNumber: string): Promise<void> {
+    const existingUser = await this.getUserById(id);
+    if (!existingUser) {
+      throw new InternalServerErrorException(`User ${id} was not found`);
+    }
+
+    const password = Math.random().toString(36).substring(7);
+    SMSService.sendSMS(phoneNumber, `הקוד לאפליקציית שליחים לרפואה הוא: ${password}`)
+
+    this.saveNewPassword(password, existingUser);
   }
 
   /**
@@ -208,6 +235,7 @@ export class UsersService {
         'password',
         'salt',
         'active',
+        'new',
       ],
       where: [{ username, active: true }],
     });

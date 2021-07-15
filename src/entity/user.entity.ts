@@ -61,6 +61,9 @@ export class User {
   @Column()
   active: boolean;
 
+  @Column()
+  new: boolean;
+
   @Column({ name: 'refresh_token' })
   @Exclude({ toPlainOnly: true })
   refreshToken: string;
