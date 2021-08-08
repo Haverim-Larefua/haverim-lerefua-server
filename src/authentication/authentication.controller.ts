@@ -1,4 +1,5 @@
-import {Body, Controller, Logger, Post} from '@nestjs/common';
+import {Body, Controller, Logger, Post, Put} from '@nestjs/common';
+import { User } from 'src/entity/user.entity';
 import {ILoginRequest} from '../entity/login.model';
 import {AuthenticationService, IAuthAdminResponse, IAuthUserResponse} from './authentication.service';
 
@@ -28,4 +29,9 @@ export class AuthenticationController {
     return this.authenticationService.refreshToken(refreshTokenObject.refreshToken);
   }
 
+  @Put('forgotPassword')
+  forgotPassword(@Body() data: {phoneNumber: string}): Promise<User> {
+    Logger.log(`[AuthenticationController] forgotPassword(${data.phoneNumber})`);
+    return this.authenticationService.forgotPassword(data.phoneNumber);
+  }
 }

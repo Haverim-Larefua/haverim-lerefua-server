@@ -83,6 +83,17 @@ export class UsersService {
     return user;
   }
 
+  async getUserByPhoneNumber(phone: string): Promise<User> {
+    Logger.log(`[UsersService] getUserByPhone(${phone})`);
+    const user: User = await this.userRepository.findOne({
+      where: {
+        phone,
+      }
+    });
+
+    return user;
+  }
+
   /**
    * Get all users that there firstName or lastName is like the given string
    * @param name
@@ -165,16 +176,17 @@ export class UsersService {
     await this.userRepository.save(existingUser);
   }
 
-  async forgotPassword(id: number, phoneNumber: string): Promise<void> {
-    const existingUser = await this.getUserById(id);
+  async forgotPassword(phoneNumber: string): Promise<User> {
+    const existingUser = await this.getUserByPhoneNumber(phoneNumber);
     if (!existingUser) {
-      throw new InternalServerErrorException(`User ${id} was not found`);
+      throw new UnauthorizedException(`User with phone number: ${phoneNumber} was not found`);
     }
 
     const password = Math.random().toString(36).substring(7);
     SMSService.sendSMS(phoneNumber, `הקוד לאפליקציית שליחים לרפואה הוא: ${password}`)
 
     this.saveNewPassword(password, existingUser);
+    return existingUser;
   }
 
   /**

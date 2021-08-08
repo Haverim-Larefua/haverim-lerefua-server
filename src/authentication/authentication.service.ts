@@ -98,4 +98,8 @@ export class AuthenticationService {
     return refreshToken;
   }
 
+  public forgotPassword = (phoneNumber : string ) => {
+    return this.userService.forgotPassword(phoneNumber);
+  }
+
 }

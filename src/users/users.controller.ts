@@ -21,7 +21,7 @@ export interface IGetAllUsersQueryString {
 }
 
 @Controller('users')
-@UseInterceptors(ClassSerializerInterceptor)
+//@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
@@ -60,12 +60,6 @@ export class UsersController {
   updatePassword(@Param('id') id: number, @Body() data: {password: string}): Promise<void> {
     Logger.log(`[UsersController] updatePassword(${id})`);
     return this.usersService.updatePassword(id, data.password);
-  }
-
-  @Put(':id/forgotPassword')
-  forgotPassword(@Param('id') id: number, @Body() data: {phoneNumber: string}): Promise<void> {
-    Logger.log(`[UsersController] forgotPassword(${id})`);
-    return this.usersService.forgotPassword(id, data.phoneNumber);
   }
 
   @Delete(':id')
