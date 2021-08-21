@@ -52,6 +52,7 @@ CREATE TABLE `parcel` (
   `signature` text DEFAULT NULL,
   `deleted` boolean DEFAULT false,
   `exception` boolean DEFAULT false,
+	`need_delivery` boolean DEFAULT false,
   PRIMARY KEY (`id`),
   KEY `parcel_user_fk_idx` (`currentUserId`),
   CONSTRAINT `parcel_user_fk` FOREIGN KEY (`currentUserId`) REFERENCES `users` (`id`)
@@ -150,10 +151,10 @@ DO CALL calculateExpiredParcelsSP;
 INSERT INTO `refua_delivery`.`admins` (`first_name`, `last_name`, `username`, `password`, `salt`) VALUES ('admin', 'admin', 'admin', 'cb9af5d9bb030cd8dc49726670f42401c5b13f2e89d92ca465634e948bbe3c97fd605fc59d4d8df50a427e35166ad3fea241e6ab7b21ed2347e536b96f9e3148', 'd047a22b76dd833f');
 
 ALTER TABLE `refua_delivery`.`users` 
-ADD FULLTEXT INDEX `search_fulltext` (`first_name`, `last_name`, `phone`) WITH PARSER ngram VISIBLE;
+ADD FULLTEXT INDEX `search_fulltext` (`first_name`, `last_name`, `phone`) WITH PARSER ngram;
 
 ALTER TABLE `refua_delivery`.`parcel` 
-ADD FULLTEXT INDEX `search_fulltext` (`phone`, `customer_name`, `customer_id`) WITH PARSER ngram VISIBLE;
+ADD FULLTEXT INDEX `search_fulltext` (`phone`, `customer_name`, `customer_id`) WITH PARSER ngram;
 
 INSERT INTO `refua_delivery`.`district` (`id`, `name`) VALUES ('1', 'ירושלים');
 INSERT INTO `refua_delivery`.`district` (`id`, `name`) VALUES ('2', 'הצפון');
@@ -1683,8 +1684,8 @@ CREATE TABLE `refua_delivery`.`user2city` (
   PRIMARY KEY (`id`));
 
 ALTER TABLE `refua_delivery`.`user2city` 
-ADD INDEX `user_id_idx` (`user_id` ASC) VISIBLE,
-ADD INDEX `fk_city_id_idx` (`city_id` ASC) VISIBLE;
+ADD INDEX `user_id_idx` (`user_id` ASC),
+ADD INDEX `fk_city_id_idx` (`city_id` ASC);
 ;
 
 ALTER TABLE `refua_delivery`.`user2city` 
@@ -1708,7 +1709,7 @@ CHANGE COLUMN `city` `city_old` VARCHAR(50) NULL DEFAULT NULL ;
 
 ALTER TABLE `refua_delivery`.`parcel` 
 ADD COLUMN `city` INT(11) NULL AFTER `id`,
-ADD INDEX `parcel_city_fk_idx` (`city` ASC) VISIBLE;
+ADD INDEX `parcel_city_fk_idx` (`city` ASC);
 ;
 ALTER TABLE `refua_delivery`.`parcel` 
 ADD CONSTRAINT `parcel_city_fk`

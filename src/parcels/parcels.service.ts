@@ -66,13 +66,19 @@ export class ParcelsService {
   }
 
   private buildParcelsQueryWhereStatement(query: IGetAllParcelsQueryString) {
-    const { cityFilterTerm, statusFilterTerm } = query;
+    const { cityFilterTerm, statusFilterTerm, needDelivery } = query;
 
     let where = "deleted = false ";
+		
+		// TODO: this code is not secure and is vulnerable to sql injections
 
     if (cityFilterTerm) {
       where += `and city.id IN (${cityFilterTerm}) `;
     }
+
+		if(needDelivery) {
+			where += `and need_delivery = ${needDelivery} `
+		}
 
     if (statusFilterTerm) {
       switch (statusFilterTerm) {
@@ -294,6 +300,7 @@ export class ParcelsService {
             currentUserId: userId,
             lastUpdateDate: dt,
             parcelTrackingStatus: ParcelStatus.assigned,
+						needDelivery: false
           })
           .where('id = :parcelId', { parcelId })
           .execute();
