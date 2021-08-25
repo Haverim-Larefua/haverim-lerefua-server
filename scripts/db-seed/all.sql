@@ -1731,6 +1731,7 @@ update refua_delivery.cities  set name = 'כפר חסידים' where name like '
 
 delete from refua_delivery.cities  where name like '%חסידים ב%' and id > 0;
 
-
+ALTER TABLE `refua_delivery`.`users`
+ADD COLUMN `new` TINYINT(1) NULL DEFAULT 1 AFTER `active`;
 
 
