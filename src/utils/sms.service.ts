@@ -6,7 +6,7 @@ export class SMSService {
         try {   
             const israelPhoneNumber = "+972" + phoneNumber.substring(1);
             const accountSid = "AC4471cb836a4eeb93cfdd16a745f02d56"
-            const authToken = '772186393d5e8d3be91b1624d9a6fb07';
+            const authToken = 'c63fe0bfd8e15623fcaf9fc3fc034ec0';
             const client = require('twilio')(accountSid, authToken);
 
 
