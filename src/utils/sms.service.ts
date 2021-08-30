@@ -5,8 +5,8 @@ export class SMSService {
     public static sendSMS(phoneNumber: string, message: string) {
         try {   
             const israelPhoneNumber = "+972" + phoneNumber.substring(1);
-            const accountSid = "AC4471cb836a4eeb93cfdd16a745f02d56"
-            const authToken = 'c63fe0bfd8e15623fcaf9fc3fc034ec0';
+            const accountSid = process.env.TWILIO_ACCOUNT_SID;
+            const authToken = process.env.TWILIO_AUTH_TOKEN;
             const client = require('twilio')(accountSid, authToken);
 
 
