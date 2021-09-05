@@ -82,6 +82,9 @@ export class Parcel {
   @Column()
   exception: boolean;
 
+	@Column({ name: 'need_delivery' })
+	needDelivery: boolean;
+
   @OneToOne(type => User)
   @JoinColumn({ name: 'currentUserId', referencedColumnName: 'id' })
   user: User;

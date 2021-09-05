@@ -35,6 +35,7 @@ export interface IGetAllParcelsQueryString {
   cityFilterTerm?: number[];
   searchTerm?: string;
   freeCondition?: string;
+	needDelivery?: string;
 }
 
 
