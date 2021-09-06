@@ -3,11 +3,11 @@
 ## PREREQUISITES ##
 
 1. Install MySql Community Server
-   Mac: https://dev.mysql.com/doc/refman/5.7/en/osx-installation-pkg.html
+   Mac: https://dev.mysql.com/doc/refman/5.7/en/macos-installation-pkg.html
 
 2. Install MySql Workbench
    https://www.mysql.com/products/workbench/
-   Notes: 
+   Notes:
    * use username root and password root (can be changed later)
    * Authentication method - select Use Legacy Authentication Method
 
@@ -30,7 +30,7 @@
 
 7. Enter to swagger and verify it is working:
    http://localhost:3001/swagger/
-   
+
 ## ERROR HANDLING ##
 Error handling document can be found in the 'docs' folder
 

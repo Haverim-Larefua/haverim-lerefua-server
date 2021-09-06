@@ -69,14 +69,14 @@ export class ParcelsService {
     const { cityFilterTerm, statusFilterTerm, needDelivery } = query;
 
     let where = "deleted = false ";
-		
+
 		// TODO: this code is not secure and is vulnerable to sql injections
 
     if (cityFilterTerm) {
       where += `and city.id IN (${cityFilterTerm}) `;
     }
 
-		if(needDelivery) {
+		if(['0','1'].includes(needDelivery)) {
 			where += `and need_delivery = ${needDelivery} `
 		}
 
@@ -300,7 +300,7 @@ export class ParcelsService {
             currentUserId: userId,
             lastUpdateDate: dt,
             parcelTrackingStatus: ParcelStatus.assigned,
-						needDelivery: false
+						needDelivery: false,
           })
           .where('id = :parcelId', { parcelId })
           .execute();
