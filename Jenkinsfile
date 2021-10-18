@@ -81,29 +81,29 @@ node (nodeName) {
         
         
         stage ("Deploy") {
-            
             banner (env.STAGE_NAME)
-            
-            sh """
-                
-                ### Remove the old container, if exists.
-                containers=\$(docker ps -a | grep ${dockerName} | wc -l)
-                if [ \${containers} -eq 1 ]; then
-                    docker rm -f ${dockerName}
-                fi
-                
-                
-                ### Create a container from the image
-                docker create --name ${dockerName} -p 3306:3306 --net=host -e DB_USERNAME=ffh_user -e DB_PASSWORD='ffh_P@ssw0rd' ${dockerName}:${dockerVersion}
+            withCredentials([string(credentialsId: 'TWILIO_ACCOUNT_SID', variable: 'TAS'), string(credentialsId: 'TWILIO_AUTH_TOKEN', variable: 'TAT')]) {
+                sh """
+                    
+                    ### Remove the old container, if exists.
+                    containers=\$(docker ps -a | grep ${dockerName} | wc -l)
+                    if [ \${containers} -eq 1 ]; then
+                        docker rm -f ${dockerName}
+                    fi
+                    
+                    
+                    ### Create a container from the image
+                    docker create --name ${dockerName} -p 3306:3306 --net=host -e DB_USERNAME=ffh_user -e DB_PASSWORD='ffh_P@ssw0rd' -e TWILIO_ACCOUNT_SID=${TAS} -e TWILIO_AUTH_TOKEN=${TAT} ${dockerName}:${dockerVersion}
 
 
-                ### Start the container.
-                docker start ${dockerName}
+                    ### Start the container.
+                    docker start ${dockerName}
 
 
-                ### Make sure that the docker will boot automatically.
-                docker update --restart unless-stopped ${dockerName}
-            """
+                    ### Make sure that the docker will boot automatically.
+                    docker update --restart unless-stopped ${dockerName}
+                """
+            }
         }
     }
     catch (Exception ex) {
