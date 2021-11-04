@@ -124,11 +124,11 @@ BEGIN
   exception = 0
   AND
   (
-	(parcelTrackingStatus = 'ready' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 12)
+	(parcelTrackingStatus = 'ready' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 48)
 	OR
-    (parcelTrackingStatus = 'assigned' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 12)
+    (parcelTrackingStatus = 'assigned' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 48)
     OR
-	(parcelTrackingStatus = 'distribution' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 6)
+	(parcelTrackingStatus = 'distribution' AND TIMESTAMPDIFF(HOUR,lastUpdateDate, CURRENT_TIMESTAMP) > 48)
   );
 	UPDATE parcel SET lastUpdateDate = CURRENT_TIMESTAMP, exception = 1
 	WHERE id IN (SELECT id from _temp_exception_ids);
