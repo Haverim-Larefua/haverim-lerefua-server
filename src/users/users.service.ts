@@ -183,7 +183,10 @@ export class UsersService {
     }
 
     const password = Math.random().toString(36).substring(7);
-    SMSService.sendSMS(phoneNumber, `The new code is': ${password}`)
+    let message = ' הקוד הזמני שלך לשליחים לרפואה הוא ';
+    message += password;
+    message += ' אנא הזן אותו בשדה הרלוונטי '
+    SMSService.sendSMS(phoneNumber, message)
 
     this.saveNewPassword(password, existingUser);
     return existingUser;
