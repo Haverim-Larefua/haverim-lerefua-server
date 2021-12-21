@@ -2,6 +2,8 @@ import { Logger } from "@nestjs/common";
 
 export class SMSService {
 
+    private static readonly TWILLO_PHONE_NUMBER = '+14133596949';
+
     public static sendSMS(phoneNumber: string, message: string) {
         try {   
             const israelPhoneNumber = "+972" + phoneNumber.substring(1);
@@ -13,7 +15,7 @@ export class SMSService {
             client.messages
                 .create({
                     body: message,
-                    from: '+13522616895',
+                    from: SMSService.TWILLO_PHONE_NUMBER,
                     to: israelPhoneNumber
                 })
                 .then(message => console.log(message.sid))
