@@ -1736,3 +1736,15 @@ ALTER TABLE `refua_delivery`.`users`
 ADD COLUMN `new` TINYINT(1) NULL DEFAULT 1 AFTER `active`;
 
 
+ALTER TABLE `refua_delivery`.`parcel` 
+ADD COLUMN `tree` VARCHAR(100) NULL DEFAULT NULL AFTER `need_delivery`;
+
+ALTER TABLE `refua_delivery`.`parcel` 
+DROP INDEX `search_fulltext` ,
+ADD FULLTEXT INDEX `search_fulltext` (`phone`, `customer_name`, `customer_id`, `tree`) WITH PARSER `ngram`;
+
+
+
+
+
+

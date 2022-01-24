@@ -85,6 +85,10 @@ export class Parcel {
 	@Column({ name: 'need_delivery' })
 	needDelivery: boolean;
 
+  @Column()
+  @Index({ fulltext: true })
+	tree: string;
+
   @OneToOne(type => User)
   @JoinColumn({ name: 'currentUserId', referencedColumnName: 'id' })
   user: User;

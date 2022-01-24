@@ -54,7 +54,7 @@ export class ParcelsService {
 
     if (searchTerm) {
       filteredParcels.andWhere(
-        `MATCH(parcel.phone, parcel.customer_name, parcel.customer_id) AGAINST ('${searchTerm}' IN BOOLEAN MODE)`,
+        `MATCH(parcel.phone, parcel.customer_name, parcel.customer_id, parcel.tree) AGAINST ('${searchTerm}' IN BOOLEAN MODE)`,
       );
     }
 
