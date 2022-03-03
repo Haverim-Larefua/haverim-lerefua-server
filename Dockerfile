@@ -17,5 +17,6 @@ RUN npm run build
 
 # COPY --from=0 /opt/app/hl/node_modules ./node_modules
 RUN ls -ltr .
+ENV NODE_OPTIONS=--max_old_space_size=4096
 EXPOSE 3001
 ENTRYPOINT ${APP_PATH}/scripts/startService.sh
