@@ -12,7 +12,7 @@ RUN apk add bash
 RUN mkdir -p /opt/app/hl/
 WORKDIR /opt/app/hl
 COPY . .
-RUN npm install
+RUN npm install reactstrap --legacy-peer-deps
 RUN npm run build
 
 # COPY --from=0 /opt/app/hl/node_modules ./node_modules
