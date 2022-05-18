@@ -5,6 +5,6 @@ export APP_PATH=/opt/app/iplan-app
 /usr/local/bin/npm run start
 
 while :
-do 
+do
    sleep 10
 done
