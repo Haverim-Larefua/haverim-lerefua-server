@@ -1,4 +1,4 @@
-#!/bin/bash +x
+#!/bin/bash
 
 
 
@@ -53,16 +53,17 @@ docker update --restart unless-stopped ${docker_name}
 
 
 ### Get the default root password.
-temp_password=$(docker logs ${docker_name} 2>&1 | grep GENERATED | awk '{print $NF}')
+temp_password=$(docker logs ${docker_name} | grep GENERATED | awk '{print $NF}')
+echo "Temp password is [${temp_password}]"
 
 
 
 ### Generate the MOP file.
-sed -e "s/__PWD__/${temp_password}/" -e "s/__DOCKER_NAME__/${docker_name}/" scripts/mop.tmpl.sh > mop.sh
+perl -p -e "s/__DOCKER_NAME__/${docker_name}/" scripts/mop.tmpl.sh | perl -pe "s|__PWD__|${temp_password}|"  > mop.sh
 
 
 
 ### Print the MOP to the log
-/bin/sh mop.sh
+/bin/sh ./mop.sh
 
 
