@@ -53,7 +53,7 @@ docker update --restart unless-stopped ${docker_name}
 
 
 ### Get the default root password.
-temp_password=$(docker logs ${docker_name} | grep GENERATED 2&>1| awk '{print $NF}')
+temp_password=$(docker logs ${docker_name} | grep "GENERATED ROOT PASSWORD" | awk '{print $NF}')
 echo "Temp password is [${temp_password}]"
 
 
