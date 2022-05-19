@@ -34,7 +34,7 @@ node (nodeName) {
             currentBuild.result = 'SUCCESS'
 
             // Set the build server's name.
-            currentBuild.description = "Environment = ${nodeName}"
+            currentBuild.description = "Environment = " + nodeName
         }
 
 

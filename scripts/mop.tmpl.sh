@@ -28,6 +28,6 @@ echo "SHOW GRANTS FOR 'ffh_user'@'localhost';"
 echo ""
 
 
-# Exit from the MySQL prompt
-echo "Exit"
+echo "# Exit from the MySQL prompt"
+echo "exit"
 echo ""
