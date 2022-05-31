@@ -24,9 +24,14 @@ function setupSwagger(app: INestApplication) {
   }
 }
 
+var corsOptions = {
+  origin: '*',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cors());
+  app.use(cors(corsOptions));
   app.useGlobalPipes(new ValidationPipe());
   setupSwagger(app);
   Logger.log(`app is listening on port: ${environment.SERVER.PORT}`);
