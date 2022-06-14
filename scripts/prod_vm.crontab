@@ -1,0 +1,10 @@
+# +---------------- minute (0 - 59)
+# |  +------------- hour (0 - 23)
+# |  |  +---------- day of month (1 - 31)
+# |  |  |  +------- month (1 - 12)
+# |  |  |  |  +---- day of week (0 - 6) (Sunday=0 or 7)
+# |  |  |  |  |
+# 0 20  *  *  0  docker restart ffh_server # Restart the server docker every Sunday at 00:20
+  0 20  *  *  *  docker restart ffh_server
+
+  1 20  *  *  *  cd /home/ffh_user ; ./daily_containers_backup.sh # Daily backup docker containers
